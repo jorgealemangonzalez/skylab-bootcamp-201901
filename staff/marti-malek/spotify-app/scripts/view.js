@@ -18,16 +18,21 @@ class Panel {
 
 class SearchPanel extends Panel {
     constructor() {
-        super($(`<section class="search container">
-            <h2>Search</h2>
+        super($(`<section class="search container-fluid col-12">
             <form>
-                <input type="text" placeholder="Search an artist..." name="query">
-                <button type="submit">Search</button>
+                <div class="input-group form-group">
+                    <input class="form-control" type="text" placeholder="Search an artist..." name="query">
+                    <button class="btn btn-default" type="submit">Search</button>
+                </div>
             </form>
         </section>`))
 
         this.__$form__ = this.$container.find('form')
         this.__$query__ = this.__$form__.find('input')
+
+        var errorPanel = new ErrorPanel;
+        this.$container.append(errorPanel.$element);
+        this.__errorPanel__ = errorPanel;
     }
     
     set onSearch(callback) {
@@ -39,6 +44,10 @@ class SearchPanel extends Panel {
             callback(query)
         })
     }
+    set error(message) {
+        this.__errorPanel__.message = message;
+        this.__errorPanel__.show();
+    }
 }
 
 //#endregion
@@ -47,18 +56,23 @@ class SearchPanel extends Panel {
 
 class ArtistsPanel extends Panel {
     constructor() {
-        super($(`<section class="results container">
-            <h3>Artists</h3>
-            <ul></ul>
+        super($(`<section class="results container-fluid center">
+            <ul class="row" id="ul"></ul>
         </section>`))
 
         this.__$list__ = this.$container.find('ul')
+        /* this.$container.scrollspy({ target: '#ul' }) */
     }
 
     set artists(artists) {
-        artists.forEach(({ id, name, images }) => {
+        artists.forEach(({ id, name, images, followers }) => {
             const image = images[0] ? images[0].url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_IOVPO-Vnj08PeZ9gpDOfDNevf5BufMrtWrjmNJgaGVYMDDh5wA'
-            const $item = $(`<li data-id=${id}>${name}<img src="${image}" width="100px"></li>`)
+            /* const $gobtn = `<form><button type="submit">Albums</button></form>` */
+            const $item = $(`<li class="card col-md-4 col-xs-8 m-1 p-3" data-id=${id}><p style="font-size:1.2rem" class="card-title text-center">${name}</p><img class="card-img-top center rounded artist__image" src="${image}" width="100px"></li>`)
+
+            /* $gobtn.on('submit', () => {
+                console.log('hello')
+            }) */
 
             $item.click(() => {
                 const id = $item.data('id')
@@ -89,10 +103,10 @@ class AlbumsPanel extends Panel {
         this.__$list__ = this.$container.find('ul')
     }
     set items(items) {
-        /* this.__$list__.html(''); */
 
-        items.forEach(({id, name}) => {
-            const $item = $(`<li data-id=${id}>${name}</li>`)
+        items.forEach(({id, name, images}) => {
+            const image = images[0] ? images[0].url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_IOVPO-Vnj08PeZ9gpDOfDNevf5BufMrtWrjmNJgaGVYMDDh5wA'
+            const $item = $(`<li data-id=${id} style="text-decoration:none">${name}<img src="${image}" width="80%"></li>`)
 
             $item.click(() => {
                 const id = $item.data('id')
@@ -145,6 +159,8 @@ class TracksPanel extends Panel {
 
 //#endregion
 
+//#region song panel
+
 class SongPanel extends Panel {
     constructor() {
         super($(`<section class="song container">
@@ -155,11 +171,25 @@ class SongPanel extends Panel {
         this.__$list__ = this.$container.find('ul')
     }
 
-    set song(song) {
-        song.name = name
-        song.id = id
+    set song({id, name}) {
         const $item = $(`<li data-id=${id}>${name}</li>`)
 
         this.__$list__.append($item)
     }
 }
+
+//#endregion
+
+//#region error panel
+
+class ErrorPanel extends Panel {
+    constructor() {
+        super($(`<section class="error alert alert-danger"></section>`))
+    }
+
+    set message(message) {
+        this.$container.text(message)
+    }
+}
+
+//#endregion

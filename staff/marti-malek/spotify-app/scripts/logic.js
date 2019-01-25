@@ -43,7 +43,4 @@ const logic = {
 
         spotifyApi.retrieveSong(id, callback)
     }
-
-
-    //TODO retrieveTrack(id, callback) // endpoint /v1/tracks/{id}
 }

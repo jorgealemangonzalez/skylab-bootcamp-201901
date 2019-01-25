@@ -1,5 +1,27 @@
 main {
-  background-color: #1cd760;
+  /* background-color: #1cd760 */
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+.row {
+  justify-content: center;
+}
+
+.card-img-top {
+  width: 80%;
+}
+
+.artist__image {
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 1rem;
+}
+
+li {
+  text-decoration: none;
 }
 
 /*# sourceMappingURL=main.css.map */

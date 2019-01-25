@@ -52,6 +52,16 @@ const spotifyApi = {
             .then(res => res.json())
             .then(({ items }) => callback(undefined, items))
             .catch(callback)
+    },
+    retrieveSong(id, callback) {
+        fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+            method: 'GET',
+            headers: {
+                authorization: `Bearer ${this.token}`
+            }
+        })
+            .then(res => res.json())
+            .then(({ items }) => callback(undefined, items))
     }
 
 }

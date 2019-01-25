@@ -1,22 +1,26 @@
-spotifyApi.token= 'BQCwna7ou8nfgyFcXtsWI8P6w8t2RJuTaxmPw8IUxTCW29qnS6HJoUPFgM078fcrODNuYRnLr741Gd3AXBSRlT6CFqmQ6LNYKR4L3r7qGOc1nCq4d0Fiq8ZWd3tCoUxRrnYXPlddpD2cyvXabcZGDVR2nzBBbD2grw'
+spotifyApi.token= 'BQBhM_5FN16ttDSUdJWkmtDbU8tJNSdKXPfA7ypbp_IMfUKneICDM8-vAxMu1ljs5wvxzH2tEBFOyilmgIJZGcsVwV6aFizvTSsbCamk6SZy2-rWY0ARDOshZZh9FdtAL1Nbp2bkGzEJYK6XosbdemwgEu1ppOJ75A'
 
 const searchPanel = new SearchPanel
 const artistsPanel = new ArtistsPanel
 const albumsPanel = new AlbumsPanel
 const tracksPanel = new TracksPanel
 const songPanel = new SongPanel
+const errorPanel = new ErrorPanel
 
 const $root = $('#root')
 
 artistsPanel.hide()
 albumsPanel.hide()
 tracksPanel.hide()
+songPanel.hide()
+errorPanel.hide()
 
 $root.append(searchPanel.$container)
 $root.append(artistsPanel.$container)
 $root.append(albumsPanel.$container)
 $root.append(tracksPanel.$container)
 $root.append(songPanel.$container)
+$root.append(errorPanel.$container)
 
 searchPanel.onSearch = function(query) {
     try {
@@ -31,7 +35,7 @@ searchPanel.onSearch = function(query) {
             }
         }) 
     } catch(err) {
-
+        searchPanel.error = err.message
     }
 }
 
@@ -76,7 +80,8 @@ tracksPanel.onSongSelected = function (id) {
             else{
                 tracksPanel.hide()
 
-                songPanel.song = song
+                const {id, name} = song
+                songPanel.song = {id, name}
 
                 songPanel.show()
             }
