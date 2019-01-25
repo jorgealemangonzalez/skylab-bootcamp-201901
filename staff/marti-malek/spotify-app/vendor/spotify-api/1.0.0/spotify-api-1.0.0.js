@@ -35,10 +35,23 @@ const spotifyApi = {
         fetch(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
             method: 'GET',
             headers: {
-                authorization: 'Bearer BQAc-S20Y7d0Ae34ZVjtFvrJN9plo2bMR8xcAk3xV6JB8Qt6a4e9yGRmvZozsyg6Jx_iBGK2u1E71risbpWMe8lwcZo5phXi-Gb3z8Ss7uuxKlCu6XCY2MKGwH4iJUiAnWzBuom5wz5RT6XSyRNpmIS11G2hn-hyGA'
+                authorization: `Bearer ${this.token}`
             }
         })
             .then(res => res.json())
             .then(({ items }) => callback(undefined, items))
+            .catch(callback)
+    },
+    retrieveTracks(albumId, callback) {
+        fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks`, {
+            method: 'GET',
+            headers: {
+                authorization: `Bearer ${this.token}`
+            }
+        })
+            .then(res => res.json())
+            .then(({ items }) => callback(undefined, items))
+            .catch(callback)
     }
+
 }
