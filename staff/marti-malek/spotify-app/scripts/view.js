@@ -390,7 +390,7 @@ class SongPanel extends Panel {
     }
 
     set song({id, name, preview_url}) { 
-        const $item = $(`<li data-id=${id}>${name}<audio src="${preview_url} controls"></audio></li>`)
+        const $item = $(`<div class="card col-8 center artist__image"><div class="card-body" style="text-decoration:none"data-id=${id}><p class="card-text align-center">${name}</p><audio class="m-3 ml-5" src=${preview_url} controls></audio></div></div>`)
 
         this.__$list__.append($item)
     }

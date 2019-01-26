@@ -37,6 +37,10 @@ main {
   color: white;
 }
 
+.align-center {
+  text-align: center;
+}
+
 li {
   text-decoration: none;
 }
