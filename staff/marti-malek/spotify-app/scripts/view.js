@@ -14,6 +14,62 @@ class Panel {
 
 //#endregion
 
+
+//#region login panel
+
+class LoginPanel extends Panel {
+    constructor() {
+        super($(`<section class="container-fluid">
+        <form class="col-12">
+            <div class="input-group col-12 m-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Email</span>
+                </div>
+                <input class="form-control" name="email" type="email" placeholder="something@example.com"></input>
+            </div>
+            <div class="input-group col-12 m-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Password</span>
+            </div>
+            <input class="form-control" name="password" type="password" placeholder="3xampl3"></input>
+            </div>
+            <button class="btn btn-default" id="login__btn" type="submit">Log In</button>
+        </form>
+        
+        </section>`))
+
+        this.__$form__ = this.$container.find('form')
+        this.__$emailInput__ = this.__$form__.find('input[type=email]')
+        this.__$passwordInput__ = this.__$form__.find('input[type=password]')
+
+        var errorPanel = new ErrorPanel;
+        this.$container.append(errorPanel.$container);
+        this.__errorPanel__ = errorPanel;
+        this.__errorPanel__.hide()
+    }
+
+    set onLogin(callback) {
+        this.__$form__.on('submit', event => {
+            event.preventDefault()
+
+            const email = this.__$emailInput__.val()
+            const password = this.__$passwordInput__.val()
+
+            callback(email, password)
+        })
+    }
+
+    clear() {
+        this.__$emailInput__.val('')
+        this.__$passwordInput__.val('')
+        this.__errorPanel__.message = ''
+        this.__errorPanel__.hide()
+    }
+}
+
+
+//#endregion
+
 //#region search panel
 
 class SearchPanel extends Panel {
@@ -31,8 +87,10 @@ class SearchPanel extends Panel {
         this.__$query__ = this.__$form__.find('input')
 
         var errorPanel = new ErrorPanel;
-        this.$container.append(errorPanel.$element);
+        this.$container.append(errorPanel.$container);
         this.__errorPanel__ = errorPanel;
+
+        errorPanel.hide()
     }
     
     set onSearch(callback) {
@@ -45,8 +103,13 @@ class SearchPanel extends Panel {
         })
     }
     set error(message) {
-        this.__errorPanel__.message = message;
-        this.__errorPanel__.show();
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
+
+    errorHide() {
+        this.__errorPanel__.message = ''
+        this.__errorPanel__.hide()
     }
 }
 
@@ -63,6 +126,9 @@ class ArtistsPanel extends Panel {
 
         this.__$list__ = this.$container.find('ul')
         /* this.$container.scrollspy({ target: '#ul' }) */
+        var errorPanel = new ErrorPanel;
+        this.$container.append(errorPanel.$container);
+        this.__errorPanel__ = errorPanel;
     }
 
     set artists(artists) {
@@ -97,6 +163,15 @@ class ArtistsPanel extends Panel {
     set onAlbumSelected(callback) {
         this.__onAlbumSelectedCallback__ = callback
     }
+
+    set error(message) {
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
+
+    clear () {
+        this.__$list__.empty()
+    }
 }
 
 //#endregion
@@ -111,6 +186,10 @@ class AlbumsPanel extends Panel {
         </section>`))
 
         this.__$list__ = this.$container.find('ul')
+
+        var errorPanel = new ErrorPanel;
+        this.$container.append(errorPanel.$container);
+        this.__errorPanel__ = errorPanel;
     }
     set items(items) {
 
@@ -131,6 +210,15 @@ class AlbumsPanel extends Panel {
     set onTrackSelected(callback) {
         this.__onTrackSelectedCallback__ = callback
     }
+
+    set error(message) {
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
+
+    clear () {
+        this.__$list__.empty()
+    }
 }
 
 //#endregion
@@ -145,6 +233,10 @@ class TracksPanel extends Panel {
         </section>`))
 
         this.__$list__ = this.$container.find('ul')
+
+        var errorPanel = new ErrorPanel;
+        this.$container.append(errorPanel.$container);
+        this.__errorPanel__ = errorPanel;
     }
 
     set tracks(tracks) {
@@ -167,6 +259,15 @@ class TracksPanel extends Panel {
     set onSongSelected(callback) {
         this.__onSongSelectedCallback__ = callback
     }
+
+    set error(message) {
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
+
+    clear () {
+        this.__$list__.empty()
+    }
 }
 
 //#endregion
@@ -181,12 +282,25 @@ class SongPanel extends Panel {
         </section>`))
 
         this.__$list__ = this.$container.find('ul')
+
+        var errorPanel = new ErrorPanel;
+        this.$container.append(errorPanel.$container);
+        this.__errorPanel__ = errorPanel;
     }
 
-    set song({id, name}) { //Object???
-        const $item = $(`<li data-id=${id}>${name}</li>`)
+    set song({id, name, preview_url}) { 
+        const $item = $(`<li data-id=${id}>${name}<audio src="${preview_url} controls"></audio></li>`)
 
         this.__$list__.append($item)
+    }
+
+    set error(message) {
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
+
+    clear () {
+        this.__$list__.empty()
     }
 }
 
@@ -203,5 +317,7 @@ class ErrorPanel extends Panel {
         this.$container.text(message)
     }
 }
+
+
 
 //#endregion

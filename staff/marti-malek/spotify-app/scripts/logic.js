@@ -1,5 +1,25 @@
 const logic = {
     /**
+     * 
+     * @param {string} email 
+     * @param {password} password 
+     * @param {function} callback 
+     */
+    login: function (email, password, callback) {
+        var user = users.find(function (user) {
+            return user.email === email
+        })
+
+        if (user.password !== password) throw Error ('wrong password')
+
+        var loggedInUser = {
+            name: user.name,
+            surname: user.surnam,
+            email: user.email
+        }
+        callback(loggedInUser)
+    },
+    /**
      * Searches for artists
      * @param {*} query 
      * @param {*} callback 

@@ -1,5 +1,6 @@
-spotifyApi.token= 'BQCC6MpDMB7fIPOxrQGUCPOZ9kGJ2a-OQAkjvqYVrtlvsP8vhkkMCeYFO800sq47FXTDuS9tt9SISyi9UI01mXK736OSRe_JdQFwcqYPeE6R0VyuVA_Kvobwm9yeQ1eJGI9ewwjfSMgGhJYVx5Go6TpPQAKA029Ovg'
+spotifyApi.token= 'BQDN0bkJGusqY2xdkubZo3WiESsCp053dl6wHMYjbJ9yILUAEifGfQCpdEN6H_dqaSCmLnj0grgxVF6v0Tm527f7Sx642stHpo4wfZCyWfBC-9-jXYix796tw88hwcX50hyvEa4imgOPNZidEyuMxDc7Y6wsREynfw'
 
+const loginPanel = new LoginPanel
 const searchPanel = new SearchPanel
 const artistsPanel = new ArtistsPanel
 const albumsPanel = new AlbumsPanel
@@ -9,20 +10,47 @@ const errorPanel = new ErrorPanel
 
 const $root = $('#root')
 
+searchPanel.hide()
 artistsPanel.hide()
 albumsPanel.hide()
 tracksPanel.hide()
 songPanel.hide()
 errorPanel.hide()
 
+$root.append(loginPanel.$container)
 $root.append(searchPanel.$container)
 $root.append(artistsPanel.$container)
 $root.append(albumsPanel.$container)
 $root.append(tracksPanel.$container)
 $root.append(songPanel.$container)
-$root.append(errorPanel.$container)
+
+
+loginPanel.onLogin = function(email, password) {
+    try {
+        logic.login(email, password, function(user) {
+            loginPanel.hide()
+            loginPanel.clear()
+
+            searchPanel.user = user
+            searchPanel.show()
+        })
+    } catch(err) {
+        loginPanel.error = err.message
+    }
+}
 
 searchPanel.onSearch = function(query) {
+    artistsPanel.clear()
+    albumsPanel.clear()
+    tracksPanel.clear()
+    songPanel.clear()
+    
+    searchPanel.errorHide()
+    artistsPanel.hide()
+    albumsPanel.hide()
+    tracksPanel.hide()
+    songPanel.hide()
+
     try {
         logic.searchArtists(query, function(error, artists) {
             if (error) {
