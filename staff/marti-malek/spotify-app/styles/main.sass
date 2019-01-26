@@ -1,5 +1,9 @@
+%margin-center
+    margin-left: auto
+    margin-right: auto
+    
 main
-    /* background-color: #1cd760 */
+    font-family: 'Major Mono Display', monospace
 .container-fluid
     padding:0
 .row
@@ -7,8 +11,19 @@ main
 .card-img-top
     width: 80%
 .artist__image
-    margin-left: auto
-    margin-right: auto
-    padding-bottom: 1rem
+    @extend %margin-center
+.album__image
+    @extend %margin-center
+    border-radius: 10rem
+.card-hover:hover
+    border-width: 3px
+.popover-body
+    padding: 0
+.title
+    display: unset
+    background-color: gray
+    color: white
+    @extend %margin-center
+
 li 
     text-decoration: none

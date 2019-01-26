@@ -1,5 +1,10 @@
+.title, .album__image, .artist__image {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 main {
-  /* background-color: #1cd760 */
+  font-family: "Major Mono Display", monospace;
 }
 
 .container-fluid {
@@ -14,10 +19,22 @@ main {
   width: 80%;
 }
 
-.artist__image {
-  margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 1rem;
+.album__image {
+  border-radius: 10rem;
+}
+
+.card-hover:hover {
+  border-width: 3px;
+}
+
+.popover-body {
+  padding: 0;
+}
+
+.title {
+  display: unset;
+  background-color: gray;
+  color: white;
 }
 
 li {

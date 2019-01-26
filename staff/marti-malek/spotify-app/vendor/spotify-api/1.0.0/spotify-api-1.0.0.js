@@ -62,6 +62,17 @@ const spotifyApi = {
         })
             .then(res => res.json())
             .then(({ items }) => callback(undefined, items))
-    }
+            .catch(callback)
+    },
+    /* retrieveAudio(callback) {
+        fetch(`https://api.spotify.com/v1/audio-features/06AKEBrKUckW0KREUWRnvT`, {
+            method: 'GET',
+            headers: {
+                authorization: `Bearer ${this.token}`
+            }
+        })
+            .then(res => res.json())
+            .then(({ items }) => callback(undefined, items))
+    } */
 
 }

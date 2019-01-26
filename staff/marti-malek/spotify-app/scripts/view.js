@@ -21,7 +21,7 @@ class SearchPanel extends Panel {
         super($(`<section class="search container-fluid col-12">
             <form>
                 <div class="input-group form-group">
-                    <input class="form-control" type="text" placeholder="Search an artist..." name="query">
+                    <input class="form-control" type="text" placeholder="Search your favourite artists..." name="query">
                     <button class="btn btn-default" type="submit">Search</button>
                 </div>
             </form>
@@ -57,7 +57,8 @@ class SearchPanel extends Panel {
 class ArtistsPanel extends Panel {
     constructor() {
         super($(`<section class="results container-fluid center">
-            <ul class="row" id="ul"></ul>
+            <h3 class="title center">Artists</h3>
+            <ul class="row"></ul>
         </section>`))
 
         this.__$list__ = this.$container.find('ul')
@@ -68,11 +69,20 @@ class ArtistsPanel extends Panel {
         artists.forEach(({ id, name, images, followers }) => {
             const image = images[0] ? images[0].url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_IOVPO-Vnj08PeZ9gpDOfDNevf5BufMrtWrjmNJgaGVYMDDh5wA'
             /* const $gobtn = `<form><button type="submit">Albums</button></form>` */
-            const $item = $(`<li class="card col-md-4 col-xs-8 m-1 p-3" data-id=${id}><p style="font-size:1.2rem" class="card-title text-center">${name}</p><img class="card-img-top center rounded artist__image" src="${image}" width="100px"></li>`)
+            const $item = $(`<li class="card col-md-4 col-xs-8 m-1 p-3 pb-4 shadow-sm card-hover" data-id=${id}><p style="font-size:1.2rem" class="card-title text-center">${name}</p><img class="card-img-top center rounded artist__image" src="${image}" width="100px"></li>`)
+            var tmp = null;
 
-            /* $gobtn.on('submit', () => {
-                console.log('hello')
-            }) */
+            $($item).popover({
+                    trigger: 'manual',
+                    title: `Followers: ${followers.total}`,
+                    delay: {show:500, hide:100}
+            });
+
+            $($item).hover(function(){
+                    clearTimeout(tmp);
+                    $($item).popover('show');
+                    tmp = setTimeout(function(){$($item).popover('hide')}, 1500);
+            }, function(){})
 
             $item.click(() => {
                 const id = $item.data('id')
@@ -95,9 +105,9 @@ class ArtistsPanel extends Panel {
 
 class AlbumsPanel extends Panel {
     constructor() {
-        super($(`<section class="album container">
-            <h3>Albums</h3>
-            <ul></ul>
+        super($(`<section class="album container-fluid">
+            <h3 class="title">Albums</h3>
+            <ul class="row"></ul>
         </section>`))
 
         this.__$list__ = this.$container.find('ul')
@@ -106,7 +116,7 @@ class AlbumsPanel extends Panel {
 
         items.forEach(({id, name, images}) => {
             const image = images[0] ? images[0].url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_IOVPO-Vnj08PeZ9gpDOfDNevf5BufMrtWrjmNJgaGVYMDDh5wA'
-            const $item = $(`<li data-id=${id} style="text-decoration:none">${name}<img src="${image}" width="80%"></li>`)
+            const $item = $(`<li class="card col-md-4 col-xs-8 m-1 p-3 card-hover"data-id=${id} style="text-decoration:none"><p style="font-size:1.2rem; text-align:center">${name}</p><img class="card-img-top shadow center album__image" src="${image}" width="100px"></li>`)
 
             $item.click(() => {
                 const id = $item.data('id')
@@ -130,7 +140,7 @@ class AlbumsPanel extends Panel {
 class TracksPanel extends Panel {
     constructor() {
         super($(`<section class="tracks container">
-        <h3>Tracks</h3>
+        <h3 class="title">Tracks</h3>
         <ul></ul>
         </section>`))
 
@@ -139,8 +149,10 @@ class TracksPanel extends Panel {
 
     set tracks(tracks) {
         
-        tracks.forEach(({id, name}) => {
-            const $item = $(`<li data-id=${id}>${name}</li>`)
+        tracks.forEach(({id, name, duration_ms }) => {
+            const duration = ((duration_ms / 1000) / 60)
+            const durationRound = duration.toFixed(2) + ' M'
+            const $item = $(`<li class="row" data-id=${id}><p class="pr-3">${name}</p><p class=""><strong>${durationRound}</strong></p></li>`)
 
             $item.click(() => {
                 const id = $item.data('id')
@@ -171,7 +183,7 @@ class SongPanel extends Panel {
         this.__$list__ = this.$container.find('ul')
     }
 
-    set song({id, name}) {
+    set song({id, name}) { //Object???
         const $item = $(`<li data-id=${id}>${name}</li>`)
 
         this.__$list__.append($item)
