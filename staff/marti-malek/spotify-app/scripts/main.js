@@ -1,6 +1,7 @@
-spotifyApi.token= 'BQDN0bkJGusqY2xdkubZo3WiESsCp053dl6wHMYjbJ9yILUAEifGfQCpdEN6H_dqaSCmLnj0grgxVF6v0Tm527f7Sx642stHpo4wfZCyWfBC-9-jXYix796tw88hwcX50hyvEa4imgOPNZidEyuMxDc7Y6wsREynfw'
+spotifyApi.token= 'BQCi8vjtGICqYHZF8A6vGIxooOiBfrfi-Tq44DS6B5xYjB6xLdtQEfeYXMK9uox0jVfSStpu0zow3xDEVysNxRAfGBh2ZNANdpjKcZrd5MOHCgZ09gIzSZ4QbnU2xEWBgvqyq_vF2iD4UWy5PlFZqsHBlupe7GnuGw'
 
 const loginPanel = new LoginPanel
+const registerPanel = new RegisterPanel
 const searchPanel = new SearchPanel
 const artistsPanel = new ArtistsPanel
 const albumsPanel = new AlbumsPanel
@@ -10,6 +11,7 @@ const errorPanel = new ErrorPanel
 
 const $root = $('#root')
 
+registerPanel.hide()
 searchPanel.hide()
 artistsPanel.hide()
 albumsPanel.hide()
@@ -18,6 +20,7 @@ songPanel.hide()
 errorPanel.hide()
 
 $root.append(loginPanel.$container)
+$root.append(registerPanel.$container)
 $root.append(searchPanel.$container)
 $root.append(artistsPanel.$container)
 $root.append(albumsPanel.$container)
@@ -37,6 +40,33 @@ loginPanel.onLogin = function(email, password) {
     } catch(err) {
         loginPanel.error = err.message
     }
+}
+
+loginPanel.onGoToRegister = function() {
+    loginPanel.hide()
+    loginPanel.clear()
+
+    registerPanel.show()
+}
+
+registerPanel.onRegister = function(name, surname, email, password, passwordConfirm) {
+    try {
+        logic.register(name, surname, email, password, passwordConfirm, function(user) {
+            registerPanel.hide()
+            registerPanel.clear()
+
+            loginPanel.show()
+        })
+    } catch(err) {
+        registerPanel.error = err.message
+    }
+}
+
+registerPanel.onGoToLogin = function() {
+    registerPanel.hide()
+    registerPanel.clear()
+
+    loginPanel.show()
 }
 
 searchPanel.onSearch = function(query) {

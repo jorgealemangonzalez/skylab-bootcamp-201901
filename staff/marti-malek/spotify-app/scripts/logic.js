@@ -20,6 +20,33 @@ const logic = {
         callback(loggedInUser)
     },
     /**
+     * 
+     * @param {string} name 
+     * @param {string} surname 
+     * @param {string} email 
+     * @param {string} password 
+     * @param {string} passwordConfirm 
+     * @param {function} callback 
+     */
+    register: function (name, surname, email, password, passwordConfirm, callback) {
+        var user = users.find(function (user) {
+            return user.email === email
+        })
+
+        if (user) throw Error (user + 'already exists')
+
+        if (password !== passwordConfirm) throw Error ("passwords don't match")
+
+        users.push({
+            name: name,
+            surname: surname,
+            email: email,
+            password: password
+        })
+
+        callback()
+    },
+    /**
      * Searches for artists
      * @param {*} query 
      * @param {*} callback 

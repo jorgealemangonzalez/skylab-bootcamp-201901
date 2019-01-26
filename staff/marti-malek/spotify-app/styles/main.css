@@ -45,4 +45,12 @@ li {
   margin-left: 1.9rem;
 }
 
+#cursor {
+  cursor: url(http://www.rw-designer.com/cursor-view/5683.png), auto;
+}
+
+#rainbow {
+  cursor: url(http://www.rw-designer.com/cursor-view/115879.gif), auto;
+}
+
 /*# sourceMappingURL=main.css.map */
