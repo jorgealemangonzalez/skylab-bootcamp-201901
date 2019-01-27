@@ -1,4 +1,4 @@
-spotifyApi.token= 'BQCi8vjtGICqYHZF8A6vGIxooOiBfrfi-Tq44DS6B5xYjB6xLdtQEfeYXMK9uox0jVfSStpu0zow3xDEVysNxRAfGBh2ZNANdpjKcZrd5MOHCgZ09gIzSZ4QbnU2xEWBgvqyq_vF2iD4UWy5PlFZqsHBlupe7GnuGw'
+spotifyApi.token= 'BQDv1MIJQ8AsnkAVyB_JHSeaibnH-CUc8vmHYlz2y4q2hGi2GQ8iEBqiDrpG_teU8Oaj1ns63Nu_EHTGtSSNnJ3IfGT1ory4tNypjbuWb_kViLjYNWFA6YJwaE1rd-o2CluBRBAm2h1jCnr8C79-u-LZOTRjmx4l3g'
 
 const loginPanel = new LoginPanel
 const registerPanel = new RegisterPanel
@@ -97,12 +97,23 @@ searchPanel.onSearch = function(query) {
     }
 }
 
+searchPanel.onLogout = function() {
+    searchPanel.hide()
+    artistsPanel.hide()
+    albumsPanel.hide()
+    tracksPanel.hide()
+    songPanel.hide()
+
+    loginPanel.show()
+}
+
 artistsPanel.onAlbumSelected = function (id) {
     try {
         logic.retrieveAlbums(id, function (error, album) {
             if (error) console.error(error)
             else {
                 artistsPanel.hide()
+                albumsPanel.clear()
 
                 albumsPanel.items = album
 
@@ -120,6 +131,7 @@ albumsPanel.onTrackSelected = function (id) {
             if (error) console.error(error)
             else {
                 albumsPanel.hide()
+                tracksPanel.clear()
 
                 tracksPanel.tracks = track
 
@@ -131,12 +143,19 @@ albumsPanel.onTrackSelected = function (id) {
     }
 }
 
+albumsPanel.goBack = function() {
+    albumsPanel.hide()
+
+    artistsPanel.show()
+}
+
 tracksPanel.onSongSelected = function (id) {
     try {
         logic.retrieveSong(id, function (error, song) {
             if (error) console.error(error)
             else{
                 tracksPanel.hide()
+                songPanel.clear()
 
                 const {id, name} = song
                 songPanel.song = {id, name}
@@ -147,4 +166,16 @@ tracksPanel.onSongSelected = function (id) {
     } catch(err) {
         console.error(err)
     }
+}
+
+tracksPanel.goBack = function() {
+    tracksPanel.hide()
+
+    albumsPanel.show()
+}
+
+songPanel.goBack = function() {
+    songPanel.hide()
+
+    tracksPanel.show()
 }

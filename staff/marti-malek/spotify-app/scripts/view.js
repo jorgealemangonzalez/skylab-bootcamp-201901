@@ -50,7 +50,7 @@ class RegisterPanel extends Panel {
             </div>
             <input class="form-control mr-3" id="rainbow" name="confirm" type="password" placeholder="3xampl3"></input>
         </div>
-        <button class="btn btn-default" id="login__btn" type="submit">Register</button>
+        <button class="btn btn-primary" id="login__btn" type="submit">Register</button>
         </form></section>`))
         this.__$form__ = this.$container.find('form')
         this.__$nameInput__ = this.__$form__.find('input[name=name]')
@@ -64,7 +64,7 @@ class RegisterPanel extends Panel {
         this.__errorPanel__ = errorPanel;
         this.__errorPanel__.hide()
 
-        var $login = $('<a href="#" class="btn btn-primary">Login</a>')
+        var $login = $('<button class="btn btn-default">Log In</button>')
         this.__$form__.append($login)
         this.__$login__ = $login
     }
@@ -118,7 +118,7 @@ class LoginPanel extends Panel {
             </div>
             <input class="form-control" id="rainbow" name="password" type="password" placeholder="3xampl3"></input>
             </div>
-            <button class="btn btn-default" id="login__btn" type="submit">Log In</button>
+            <button class="btn btn-primary" id="login__btn" type="submit">Log In</button>
         </form>
         
         </section>`))
@@ -132,7 +132,7 @@ class LoginPanel extends Panel {
         this.__errorPanel__ = errorPanel;
         this.__errorPanel__.hide()
 
-        var $register = $('<a href="#" class="btn btn-primary">Register</a>')
+        var $register = $('<button href="#" class="btn btn-default">Register</button>')
         this.__$form__.append($register)
         this.__$register__ = $register
     }
@@ -183,6 +183,10 @@ class SearchPanel extends Panel {
         this.$container.append(errorPanel.$container);
         this.__errorPanel__ = errorPanel;
 
+        var $logout = $('<a href="#" id="logout__btn" class="btn-sm btn-primary">Log Out</a>')
+        this.__$form__.append($logout)
+        this.__$logout__ = $logout
+
         errorPanel.hide()
     }
     
@@ -194,6 +198,10 @@ class SearchPanel extends Panel {
 
             callback(query)
         })
+    }
+
+    set onLogout(callback) {
+        this.__$logout__.on('click', callback)
     }
     set error(message) {
         this.__errorPanel__.message = message
@@ -286,6 +294,10 @@ class AlbumsPanel extends Panel {
         this.$container.append(errorPanel.$container)
         this.__errorPanel__ = errorPanel
 
+        var $goBack = $('<a href="#" class="btn-sm btn-secondary" id="goBack">Go Back</a>')
+        this.$container.append($goBack)
+        this.__$goBack__ = $goBack
+
         errorPanel.hide()
     }
     set items(items) {
@@ -306,6 +318,10 @@ class AlbumsPanel extends Panel {
 
     set onTrackSelected(callback) {
         this.__onTrackSelectedCallback__ = callback
+    }
+
+    set goBack(callback) {
+        this.__$goBack__.on('click', callback)
     }
 
     set error(message) {
@@ -335,6 +351,10 @@ class TracksPanel extends Panel {
         this.$container.append(errorPanel.$container)
         this.__errorPanel__ = errorPanel
 
+        var $goBack = $('<a href="#" class="btn-sm btn-secondary" id="goBack">Go Back</a>')
+        this.$container.append($goBack)
+        this.__$goBack__ = $goBack
+
         errorPanel.hide()
     }
 
@@ -357,6 +377,10 @@ class TracksPanel extends Panel {
 
     set onSongSelected(callback) {
         this.__onSongSelectedCallback__ = callback
+    }
+
+    set goBack(callback) {
+        this.__$goBack__.on('click', callback)
     }
 
     set error(message) {
@@ -386,6 +410,10 @@ class SongPanel extends Panel {
         this.$container.append(errorPanel.$container)
         this.__errorPanel__ = errorPanel
 
+        var $goBack = $('<a href="#" class="btn-sm btn-secondary" id="goBack">Go Back</a>')
+        this.$container.append($goBack)
+        this.__$goBack__ = $goBack
+
         errorPanel.hide()
     }
 
@@ -393,6 +421,10 @@ class SongPanel extends Panel {
         const $item = $(`<div class="card col-8 center artist__image"><div class="card-body" style="text-decoration:none"data-id=${id}><p class="card-text align-center">${name}</p><audio class="m-3 ml-5" src=${preview_url} controls></audio></div></div>`)
 
         this.__$list__.append($item)
+    }
+
+    set goBack(callback) {
+        this.__$goBack__.on('click', callback)
     }
 
     set error(message) {
