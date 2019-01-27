@@ -1,4 +1,4 @@
-spotifyApi.token= 'BQDv1MIJQ8AsnkAVyB_JHSeaibnH-CUc8vmHYlz2y4q2hGi2GQ8iEBqiDrpG_teU8Oaj1ns63Nu_EHTGtSSNnJ3IfGT1ory4tNypjbuWb_kViLjYNWFA6YJwaE1rd-o2CluBRBAm2h1jCnr8C79-u-LZOTRjmx4l3g'
+spotifyApi.token= 'BQBW5197GQZx4OtbKB8j4-m27a4sjAhiDAj-EBf9qvzxjmVM2rs0h9dy1WcCfsazcWxN0ZuSX9ED2F5H5J9QoXujmXqnL3v8RDZPVuRVrT2oTDDwprvrBIwG_TwUcLVFDokdHG9zPf5mt4wfHG9j2M0XKUK_yrHGTQ'
 
 const loginPanel = new LoginPanel
 const registerPanel = new RegisterPanel
@@ -33,6 +33,7 @@ loginPanel.onLogin = function(email, password) {
         logic.login(email, password, function(user) {
             loginPanel.hide()
             loginPanel.clear()
+            loginPanel.errorHide()
 
             searchPanel.user = user
             searchPanel.show()
@@ -45,6 +46,7 @@ loginPanel.onLogin = function(email, password) {
 loginPanel.onGoToRegister = function() {
     loginPanel.hide()
     loginPanel.clear()
+    loginPanel.errorHide()
 
     registerPanel.show()
 }
@@ -54,6 +56,7 @@ registerPanel.onRegister = function(name, surname, email, password, passwordConf
         logic.register(name, surname, email, password, passwordConfirm, function(user) {
             registerPanel.hide()
             registerPanel.clear()
+            registerPanel.errorHide()
 
             loginPanel.show()
         })
@@ -65,6 +68,7 @@ registerPanel.onRegister = function(name, surname, email, password, passwordConf
 registerPanel.onGoToLogin = function() {
     registerPanel.hide()
     registerPanel.clear()
+    registerPanel.errorHide()
 
     loginPanel.show()
 }

@@ -82,6 +82,11 @@ class RegisterPanel extends Panel {
             callback(name, surname, email, password, passwordConfirm)
         })
     }
+
+    set error(message) {
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
     
     clear() {
         this.__$nameInput__.val('')
@@ -95,6 +100,11 @@ class RegisterPanel extends Panel {
     
     set onGoToLogin(callback) {
         this.__$login__.on('click', callback)   
+    }
+
+    errorHide() {
+        this.__errorPanel__.message = ''
+        this.__errorPanel__.hide()
     }
 }
 
@@ -148,6 +158,11 @@ class LoginPanel extends Panel {
         })
     }
 
+    set error(message) {
+        this.__errorPanel__.message = message
+        this.__errorPanel__.show()
+    }
+
     clear() {
         this.__$emailInput__.val('')
         this.__$passwordInput__.val('')
@@ -157,6 +172,11 @@ class LoginPanel extends Panel {
 
     set onGoToRegister(callback) {
         this.__$register__.on('click', callback)
+    }
+
+    errorHide() {
+        this.__errorPanel__.message = ''
+        this.__errorPanel__.hide()
     }
 }
 
@@ -418,7 +438,7 @@ class SongPanel extends Panel {
     }
 
     set song({id, name, preview_url}) { 
-        const $item = $(`<div class="card col-8 center artist__image"><div class="card-body" style="text-decoration:none"data-id=${id}><p class="card-text align-center">${name}</p><audio class="m-3 ml-5" src=${preview_url} controls></audio></div></div>`)
+        const $item = $(`<div class="card col-8 center artist__image"><div class="card-body song-card" style="text-decoration:none"data-id=${id}><p class="card-text align-center">${name}</p><audio class="m-3" src=${preview_url} controls></audio></div></div>`)
 
         this.__$list__.append($item)
     }
