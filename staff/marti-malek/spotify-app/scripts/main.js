@@ -78,6 +78,7 @@ searchPanel.onSearch = function(query) {
     albumsPanel.clear()
     tracksPanel.clear()
     songPanel.clear()
+    searchPanel.clear()
     
     searchPanel.errorHide()
     artistsPanel.hide()

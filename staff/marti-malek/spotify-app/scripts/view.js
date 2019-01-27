@@ -220,6 +220,10 @@ class SearchPanel extends Panel {
         })
     }
 
+    clear() {
+        this.__$query__.val('')
+    }
+
     set onLogout(callback) {
         this.__$logout__.on('click', callback)
     }
