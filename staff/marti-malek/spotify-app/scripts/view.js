@@ -442,7 +442,8 @@ class SongPanel extends Panel {
     }
 
     set song({id, name, preview_url}) { 
-        const $item = $(`<div class="card col-8 center artist__image"><div class="card-body song-card" style="text-decoration:none"data-id=${id}><p class="card-text align-center">${name}</p><audio class="m-3" src="${preview_url}" controls></audio></div></div>`)
+        let audio = preview_url === null ? '<p class="pt-3">Whoops! There is no preview available!</p>' : `<audio class="m-3" src="${preview_url}" controls></audio>`
+        const $item = $(`<div class="card col-8 center artist__image"><div class="card-body song-card" style="text-decoration:none"data-id=${id}><p class="card-text align-center">${name}</p>${audio}</div></div>`)
 
         this.__$list__.append($item)
     }

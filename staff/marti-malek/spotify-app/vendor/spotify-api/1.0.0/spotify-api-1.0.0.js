@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Duckling API client.
+ * Spotify API client.
  * 
- * @version 2.2.0
+ * @version 1.0.0
  */
 const spotifyApi = {
     token: '',
     /**
-     * Searches ducklings.
+     * Searches artists.
      * 
      * @param {string} query - The text to match on search.
      * @param {function} callback - The expression to evaluate on response. If error first 
