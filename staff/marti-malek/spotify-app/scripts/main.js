@@ -1,4 +1,4 @@
-spotifyApi.token= 'BQB8RsmfeTGPSmIGH6ycdRfLBFGt2rIymBHueZLKN_SPOAnRlOS3KvDvgJ9nRBFqcaN3GJ9uY1VGZ3eHFfqwox8JGy_h6jLRvC3xYXJrkMBs6L3tjbtRaQ-rnoaQrA--lc8DnykOUXiCnT-q_NaiGXSQJyvEdktKDQ'
+spotifyApi.token= 'BQBgg_PewGO75iNpJGNVoO2Rq67UyjD8Tk4O-wv7nTq8LGS-5u6fx_EfUvQCH3dfAfa81aSy4LDKzVF5garmwyKc1RNhXLSNIS9YKYyotVVSWyAGeJF25ckd6CCOBo0_dtqwQwtepYNeG0esLxx72Zefp_SaS6yjAQ'
 
 const loginPanel = new LoginPanel
 const registerPanel = new RegisterPanel
@@ -162,8 +162,7 @@ tracksPanel.onSongSelected = function (id) {
                 tracksPanel.hide()
                 songPanel.clear()
 
-                const {id, name} = song
-                songPanel.song = {id, name}
+                songPanel.song = song
 
                 songPanel.show()
             }
