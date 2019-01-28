@@ -1,0 +1,94 @@
+.title, .album__image, .artist__image {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+main {
+  font-family: "Major Mono Display", monospace;
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+.row {
+  justify-content: center;
+}
+
+.card-img-top {
+  width: 80%;
+}
+
+.album__image {
+  border-radius: 10rem;
+}
+
+.card-hover:hover {
+  border-width: 3px;
+}
+
+.popover-body {
+  padding: 0;
+}
+
+.title {
+  display: unset;
+  background-color: gray;
+  color: white;
+  border-radius: 0.2rem;
+}
+
+.align-center {
+  text-align: center;
+  align-self: center;
+  margin: 0;
+}
+
+.song-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: center;
+}
+
+li {
+  text-decoration: none;
+}
+
+/* New classes with react */
+.feedback--warn {
+  background-color: yellow;
+}
+
+.feedback--error {
+  background-color: tomato;
+  color: white;
+}
+
+/* END */
+.login__btn {
+  margin-left: 1.9rem;
+}
+
+#logout__btn {
+  position: absolute;
+  right: 0.5rem;
+  top: -4.5rem;
+}
+
+#goBack {
+  position: absolute;
+  top: 8.4rem;
+  right: 0rem;
+  background-color: gray;
+}
+
+#cursor {
+  cursor: url(http://www.rw-designer.com/cursor-view/5683.png), auto;
+}
+
+.rainbow {
+  cursor: url(http://www.rw-designer.com/cursor-view/115879.gif), auto;
+}
+
+/*# sourceMappingURL=main.css.map */
