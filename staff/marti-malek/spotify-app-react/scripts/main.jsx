@@ -1,4 +1,4 @@
-spotifyApi.token = 'BQB8-CPcLkZfScKNXb3pssZz-1lRstWfW40I3exs3CZHtNjqbcmhiepHuxtkb1CQcuc-U5uU_9SbzV6bLjq_r3OxOfdQ8xYmJxQRwKnzAg8BGKo9FWYIQwMB7jethSmTrR1FzT0B8uRF2PI_rYmAC0-K15V_R2Kkaw'
+spotifyApi.token = 'BQBMpm02EgqYEqLjbFb20AjXmtl7Oezif3G-sjTStF3pQb5SY1Vc3nd3r8Mw0gUp0u0-3N__iqymkKKoln0zohfRolj8Rs4xnh97PWYmYpSWruATKizwpXtvXVyP3Fb4lQWm2ZPf8EZNL7pkYhnww3JAA8VWzIT4DQ'
 
 //#region register
 
@@ -148,16 +148,26 @@ class Search extends React.Component {
         onSearch(query)
     }
 
+    handleLogout = () => {
+
+        const { props: { logOut }} = this
+        logOut()
+    }
+
     render () {
-        const { handleSearchInput, handleFormSubmit } = this
+        const { handleSearchInput, handleFormSubmit, handleLogout, props: {feedback} } = this
 
         return <section className="search container-fluid col-12">
         <form onSubmit={handleFormSubmit}>
             <div className="input-group form-group">
+                <a id="logout__btn" onClick={handleLogout} className="btn-sm btn-primary">Log Out</a>
                 <input className="form-control" type="text" placeholder="Search your favourite artists..." name="query" onChange={handleSearchInput}/>
                 <button className="btn btn-default" type="submit">Search</button>
             </div>
         </form>
+
+        {feedback && <Feedback message={feedback} level=""/>}
+
         </section>
     }
 }
@@ -175,23 +185,50 @@ function Feedback({ message, level }) {
 //#region app
 
 class App extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            isHidden: true
-        }
-    }
-    state = { loginFeedback: '', registerFeedback: '', isHidden: true, isLoginHidden: true, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible:false, artists: [], albums: [], tracks: [], song: {} }
+    state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible:false, artists: [], albums: [], tracks: [], song: {} }
 
     toggleHidden = () => {
         this.setState({
-            isHidden: !this.state.isHidden
+            registerVisible: false,
+            loginVisible: true
+        })
+    }
+
+    handleLogout = () => {
+        this.setState({
+            searchVisible: false,
+            artistsVisible: false,
+            albumsVisible: false,
+            tracksVisible: false,
+            loginVisible: true
+        })
+    }
+
+    handleAlbumsBack = () => {
+        this.setState({
+            albumsVisible: false,
+            artistsVisible: true
+        })
+    }
+
+    handleTracksBack = () => {
+        this.setState({
+            tracksVisible: false,
+            albumsVisible: true
+        })
+    }
+
+    handleSongBack = () => {
+        this.setState({
+            songVisible: false,
+            tracksVisible: true
         })
     }
 
     loginHidden = () => {
         this.setState({
-            isLoginHidden: !this.state.isLoginHidden
+            loginVisible: false,
+            registerVisible: true
         })
     }
 
@@ -200,12 +237,14 @@ class App extends React.Component {
             logic.searchArtists(query, (error, artists) => {
                 if (error) {
                     console.error(error.message)
+                    this.setState({ searchFeedback: message })
                 } else {
                     this.setState({ artistsVisible: true, artists})
+                    this.setState({ searchFeedback: '' })
                 }
             })
         } catch ({message}) {
-            console.error(message)
+            this.setState({ searchFeedback: message, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible: false })
         }
     }
     handleAlbum = (artistId) => {
@@ -261,6 +300,10 @@ class App extends React.Component {
         }
     }
 
+    handleArtistsBack = () => {
+        this.setState({ artistsVisible: false})
+    }
+
     handleLogin = (email, password) => {
         try {
             logic.login(email, password, user => {
@@ -269,7 +312,8 @@ class App extends React.Component {
                 this.setState({ loginFeedback: '' })
             })
             this.setState({
-                isLoginHidden: !this.state.isLoginHidden
+                loginVisible: false,
+                searchVisible: true
             })
         } catch ({ message }) {
             this.setState({ loginFeedback: message })
@@ -278,16 +322,16 @@ class App extends React.Component {
     
     render() {
 
-        const { state : { artists, albums, tracks, song, loginFeedback, registerFeedback, artistsVisible, albumsVisible, tracksVisible, songVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong } = this
+        const { state : { artists, albums, tracks, song, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack } = this
 
         return <main className="app">
-        {this.state.isHidden && !this.state.isLoginHidden && <Login onLogin={handleLogin} onToRegister={this.toggleHidden} feedback={loginFeedback}/>}
-        {!this.state.isHidden && <Register onRegister={handleRegister} onToLogin={this.toggleHidden} feedback={registerFeedback}/>}
-        {this.state.isLoginHidden && <Search onSearch={handleSearch}/>}
-        {artistsVisible && <Artists artists={artists} onArtist={handleAlbum}/>}
-        {albumsVisible && <Albums albums={albums} onAlbum={handleTrack}/>}
-        {tracksVisible && <Tracks tracks={tracks} onTrack={handleSong}/>}
-        {songVisible && <Song song={song}/>}
+        {loginVisible && <Login onLogin={handleLogin} onToRegister={this.loginHidden} feedback={loginFeedback}/>}
+        {registerVisible && <Register onRegister={handleRegister} onToLogin={this.toggleHidden} feedback={registerFeedback}/>}
+        {searchVisible && <Search onSearch={handleSearch} feedback={searchFeedback} logOut={handleLogout}/>}
+        {artistsVisible && <Artists artists={artists} onArtist={handleAlbum} goArtistsBack={handleArtistsBack}/>}
+        {albumsVisible && <Albums albums={albums} onAlbum={handleTrack} goAlbumsBack={handleAlbumsBack}/>}
+        {tracksVisible && <Tracks tracks={tracks} onTrack={handleSong} goTracksBack={handleTracksBack}/>}
+        {songVisible && <Song song={song} goSongBack={handleSongBack}/>}
         
         </main>
     }
@@ -304,12 +348,18 @@ class Artists extends React.Component {
 
         onArtist(id)
     }
+
+    goBack = () => {
+        const { props: { goArtistsBack }} = this
+        goArtistsBack()
+    }
     
     render() {
-        const {props: { artists }, goToAlbums} = this
+        const {props: { artists }, goToAlbums, goBack} = this
 
         return <section className="results container-fluid center">
         <h3 className="title center">Artists</h3>
+        <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
         <ul className="row">
             {
                 artists.map(({id, images, name}) => {
@@ -322,6 +372,7 @@ class Artists extends React.Component {
                 })
             }
         </ul>
+
     </section>
     }   
 }
@@ -338,11 +389,17 @@ class Albums extends React.Component {
         onAlbum(id)
     }
 
+    goBack = () => {
+        const { props: { goAlbumsBack }} = this
+        goAlbumsBack()
+    }
+
     render() {
-        const {props: { albums }, goToTracks} = this
+        const {props: { albums }, goToTracks, goBack} = this
 
         return <section className="album container-fluid">
         <h3 className="title">Albums</h3>
+        <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
         <ul className="row">
         {
             albums.map(({images, id, name}) => {
@@ -370,11 +427,17 @@ class Tracks extends React.Component {
         onTrack(id)
     }
 
+    goBack = () => {
+        const { props: { goTracksBack }} = this
+        goTracksBack()
+    }
+    
     render() {
-        const {props: { tracks }, goToSong} = this
+        const {props: { tracks }, goToSong, goBack} = this
 
         return <section className="tracks container-fluid">
         <h3 className="title">Tracks</h3>
+        <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
         <ul>
             {
                 tracks.map(({ name, id, duration_ms}) => {
@@ -396,12 +459,18 @@ class Tracks extends React.Component {
 //#region song
 
 class Song extends React.Component {
+    goBack = () => {
+        const { props: { goSongBack }} = this
+        goSongBack()
+    }
+
     render() {
-        const {props: {song: { name, id, preview_url }}} = this
+        const {props: {song: { name, id, preview_url }}, goBack} = this
         let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} controls></audio>
 
         return <section className="song container-fluid">
         <h3 className="title">Song</h3>
+        <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
         <ul>
             <div className="card col-8 center artist__image">
                 <div className="card-body song-card" /* style="text-decoration:none" */data-id={id}>
