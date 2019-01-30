@@ -1,4 +1,4 @@
-spotifyApi.token = 'BQBvomtmQY1RT7MW7y_B31YyOWS7-8IFjFwDd2T2j2fmZJ6S_NZIo2zWLanBwoaNL4GI73y17ss0zJu5CkC7tkMVc42BVUXVp8yberRS6hF5D0HRd_3Zlf0_5FMzvkRyiXoUn-9LHzb4GEUKN5Q1-T1KwG5FwMjVIQ'
+spotifyApi.token = 'BQBKwxHPzb9qrN4anqj2xJP4Ps1cf1ClxRw2iGEJE-a3mDuWAniT2u4rdbhMj6YM333aKaL-xo2Dw-w61J_inGba-Oxe-t4eFjMgUyA8yuXo4j6uE3PIz0mzctmV-65JsOLrE7N_D_bhNB6gtz7mA1qjva6wCpsDPQ'
 
 //#region register
 
@@ -162,7 +162,7 @@ class Search extends React.Component {
             <div className="input-group form-group">
                 <a id="logout__btn" onClick={handleLogout} className="btn-sm btn-primary">Log Out</a>
                 <input className="form-control" type="text" placeholder="Search your favourite artists..." name="query" onChange={handleSearchInput}/>
-                <button className="btn btn-default" type="submit">Search</button>
+                <button className="btn btn-default" type="submit"><i className="fas fa-search"></i></button>
             </div>
         </form>
 
@@ -310,6 +310,8 @@ class App extends React.Component {
             logic.login(email, password, user => {
                 console.log(user)
 
+                window.actualUser = user
+
                 this.setState({ loginFeedback: '' })
             })
             this.setState({
@@ -320,10 +322,16 @@ class App extends React.Component {
             this.setState({ loginFeedback: message })
         }
     }
+    handleFavourite = (id) => {
+        const email = window.actualUser.email
+        logic.toggleFavourite(id, email, () => {
+            console.log('Added to favourites')
+        })
+    }
     
     render() {
 
-        const { state : { artists, albums, tracks, song, popover, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible, hoverVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack } = this
+        const { state : { artists, albums, tracks, song, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack, handleFavourite } = this
 
         return <main className="app">
         {loginVisible && <Login onLogin={handleLogin} onToRegister={this.loginHidden} feedback={loginFeedback}/>}
@@ -332,7 +340,7 @@ class App extends React.Component {
         {artistsVisible && <Artists artists={artists} onArtist={handleAlbum} goArtistsBack={handleArtistsBack}/>}
         {albumsVisible && <Albums albums={albums} onAlbum={handleTrack} goAlbumsBack={handleAlbumsBack}/>}
         {tracksVisible && <Tracks tracks={tracks} onTrack={handleSong} goTracksBack={handleTracksBack}/>}
-        {songVisible && <Song song={song} goSongBack={handleSongBack}/>}
+        {songVisible && <Song song={song} goSongBack={handleSongBack} addFavourite={handleFavourite}/>}
         
         </main>
     }
@@ -343,27 +351,34 @@ class App extends React.Component {
 //#region artists
 
 class Artists extends React.Component {
-    state = {followersVisual: false, followers: null}
+    state = {followersVisual: false, followers: null, selectedId: null}
 
     goToAlbums = id => {
         const { props: { onArtist }} = this
 
         onArtist(id)
     }
-    goHover = followers => {
-        this.setState({followers})
+    goHover = (followers, selectedId) => {
+        this.setState({followers, selectedId})
     }
     leaveHover = () => {
-        this.setState({followers: null})
+        this.setState({followers: null, selectedId: null})
     }
 
     goBack = () => {
         const { props: { goArtistsBack }} = this
         goArtistsBack()
     }
+
+    toFavourite = name => {
+        const favs = []
+
+        favs.push(name)
+        console.log(favs)
+    }
     
     render() {
-        const {props: { artists }, goToAlbums, goBack, goHover, leaveHover} = this
+        const {props: { artists }, goToAlbums, goBack, goHover, leaveHover, toFavourite} = this
         
         return <section className="results container-fluid center">
         <h3 className="title center">Artists</h3>
@@ -374,8 +389,8 @@ class Artists extends React.Component {
                     const image = images[0] ? images[0].url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_IOVPO-Vnj08PeZ9gpDOfDNevf5BufMrtWrjmNJgaGVYMDDh5wA'
                     
                     
-                    return <li onClick={() => goToAlbums(id)} onMouseEnter={() => goHover(followers)} onMouseLeave={() => leaveHover()} key={id} className="card col-md-4 col-xl-3 col-7 m-1 p-3 pb-4 shadow-sm card-hover" id="cursor" data-id={id}>
-                        {this.state.followers && <Hover followers={followers}/>}
+                    return <li onClick={() => goToAlbums(id)} onMouseEnter={() => goHover(followers, id)} onMouseLeave={() => leaveHover()} key={id} className="card col-md-4 col-xl-3 col-7 m-1 p-3 pb-4 shadow-sm card-hover" id="cursor" data-id={id}>
+                        {this.state.selectedId === id && <Hover followers={followers}/>}
                         <p /* style="font-size:1.2rem" */ className="card-title text-center">{name}</p>
                         <img className="card-img-top center rounded artist__image" src={image} width="100px"/>
                     </li>
@@ -470,22 +485,35 @@ class Tracks extends React.Component {
 //#region song
 
 class Song extends React.Component {
+    state = {liked: false}
+
     goBack = () => {
         const { props: { goSongBack }} = this
         goSongBack()
     }
+    addToFavourite = (id) => {
+        const {props: { addFavourite }} = this
+
+        this.setState({ liked: !this.state.liked})
+
+        addFavourite(id)
+    }
 
     render() {
-        const {props: {song: { name, id, preview_url }}, goBack} = this
-        let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} autoplay loop controls></audio>
+        const {props: {song: { name, id, preview_url }}, goBack, addToFavourite} = this
+        let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} loop controls></audio>
 
         return <section className="song container-fluid">
         <h3 className="title">Song</h3>
         <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
         <ul>
             <div className="card col-8 center artist__image">
-                <div className="card-body song-card" /* style="text-decoration:none" */data-id={id}>
-                    <p className="card-text align-center">{name}</p>{audio}
+                <div className="card-body song-card"data-id={id}>
+                    <p className="card-text align-center">{name}</p>
+                    <div className="row">
+                        <div className="col-10">{audio}</div>
+                        <i onClick={() => addToFavourite(id)} className={this.state.liked === true? "fas fa-heart centerMe" : "far fa-heart centerMe"} ></i>
+                    </div>
                 </div>
             </div>
         </ul>
@@ -509,5 +537,8 @@ class Hover extends React.Component {
 }
 
 //#endregion
+
+//<button className="btn btn-default" key={id+id} onClick={() => toFavourite(name)}>Fav</button>
+//</div>
 
 ReactDOM.render(<App />, document.getElementById('root'))

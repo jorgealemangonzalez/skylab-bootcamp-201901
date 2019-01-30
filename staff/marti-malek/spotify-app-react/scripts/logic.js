@@ -4,6 +4,31 @@
 const logic = {
     /**
      * 
+     * Toggles between pushing an id of a song to the array of favourite songs.
+     * 
+     * @param {string} id 
+     * @param {string} email 
+     * @param {function} callback 
+     */
+    toggleFavourite(id, email, callback) {
+        var user = users.find(function (user) {
+            return user.email === email
+        })
+
+
+        if (user.favourites.includes(id)) {
+            const position= user.favourites.indexOf(id)
+
+            user.favourites.splice(position, 1)
+            console.log(user.favourites)
+        } else {
+            user.favourites.push(id)
+            console.log(user.favourites)
+        }
+        callback()
+    },
+    /**
+     * 
      * Logs In a user by it's credentials.
      * 
      * @param {string} email 
