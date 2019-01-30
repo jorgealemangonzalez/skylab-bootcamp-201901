@@ -1,4 +1,4 @@
-spotifyApi.token = 'BQBMpm02EgqYEqLjbFb20AjXmtl7Oezif3G-sjTStF3pQb5SY1Vc3nd3r8Mw0gUp0u0-3N__iqymkKKoln0zohfRolj8Rs4xnh97PWYmYpSWruATKizwpXtvXVyP3Fb4lQWm2ZPf8EZNL7pkYhnww3JAA8VWzIT4DQ'
+spotifyApi.token = 'BQBvomtmQY1RT7MW7y_B31YyOWS7-8IFjFwDd2T2j2fmZJ6S_NZIo2zWLanBwoaNL4GI73y17ss0zJu5CkC7tkMVc42BVUXVp8yberRS6hF5D0HRd_3Zlf0_5FMzvkRyiXoUn-9LHzb4GEUKN5Q1-T1KwG5FwMjVIQ'
 
 //#region register
 
@@ -185,7 +185,7 @@ function Feedback({ message, level }) {
 //#region app
 
 class App extends React.Component {
-    state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible:false, artists: [], albums: [], tracks: [], song: {} }
+    state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible:false, artists: [], albums: [], tracks: [], song: {}, popover: [] }
 
     toggleHidden = () => {
         this.setState({
@@ -193,6 +193,7 @@ class App extends React.Component {
             loginVisible: true
         })
     }
+
 
     handleLogout = () => {
         this.setState({
@@ -322,7 +323,7 @@ class App extends React.Component {
     
     render() {
 
-        const { state : { artists, albums, tracks, song, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack } = this
+        const { state : { artists, albums, tracks, song, popover, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible, hoverVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack } = this
 
         return <main className="app">
         {loginVisible && <Login onLogin={handleLogin} onToRegister={this.loginHidden} feedback={loginFeedback}/>}
@@ -342,11 +343,18 @@ class App extends React.Component {
 //#region artists
 
 class Artists extends React.Component {
+    state = {followersVisual: false, followers: null}
 
     goToAlbums = id => {
         const { props: { onArtist }} = this
 
         onArtist(id)
+    }
+    goHover = followers => {
+        this.setState({followers})
+    }
+    leaveHover = () => {
+        this.setState({followers: null})
     }
 
     goBack = () => {
@@ -355,21 +363,24 @@ class Artists extends React.Component {
     }
     
     render() {
-        const {props: { artists }, goToAlbums, goBack} = this
-
+        const {props: { artists }, goToAlbums, goBack, goHover, leaveHover} = this
+        
         return <section className="results container-fluid center">
         <h3 className="title center">Artists</h3>
         <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
         <ul className="row">
             {
-                artists.map(({id, images, name}) => {
+                artists.map(({id, images, name, followers}) => {
                     const image = images[0] ? images[0].url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_IOVPO-Vnj08PeZ9gpDOfDNevf5BufMrtWrjmNJgaGVYMDDh5wA'
-
-                    return <li onClick={() => goToAlbums(id)} key={id} className="card col-md-4 col-xl-3 col-7 m-1 p-3 pb-4 shadow-sm card-hover" id="cursor" data-id={id}>
+                    
+                    
+                    return <li onClick={() => goToAlbums(id)} onMouseEnter={() => goHover(followers)} onMouseLeave={() => leaveHover()} key={id} className="card col-md-4 col-xl-3 col-7 m-1 p-3 pb-4 shadow-sm card-hover" id="cursor" data-id={id}>
+                        {this.state.followers && <Hover followers={followers}/>}
                         <p /* style="font-size:1.2rem" */ className="card-title text-center">{name}</p>
                         <img className="card-img-top center rounded artist__image" src={image} width="100px"/>
                     </li>
                 })
+      
             }
         </ul>
 
@@ -466,7 +477,7 @@ class Song extends React.Component {
 
     render() {
         const {props: {song: { name, id, preview_url }}, goBack} = this
-        let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} controls></audio>
+        let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} autoplay loop controls></audio>
 
         return <section className="song container-fluid">
         <h3 className="title">Song</h3>
@@ -479,6 +490,21 @@ class Song extends React.Component {
             </div>
         </ul>
         </section>
+    }
+}
+
+//#endregion
+
+//#region hover
+
+class Hover extends React.Component {
+    render() {
+        const {props: { followers }} = this
+
+        return <div className="popover fade show bs-popover-left amazing-popover" role="tooltip" x-placement="left">
+        <div className="arrow"></div>
+        <h3 className="popover-header">Followers: {followers.total}</h3>
+        </div>
     }
 }
 
