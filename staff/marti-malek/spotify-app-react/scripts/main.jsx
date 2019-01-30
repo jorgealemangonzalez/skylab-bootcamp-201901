@@ -1,4 +1,4 @@
-spotifyApi.token = 'BQBKwxHPzb9qrN4anqj2xJP4Ps1cf1ClxRw2iGEJE-a3mDuWAniT2u4rdbhMj6YM333aKaL-xo2Dw-w61J_inGba-Oxe-t4eFjMgUyA8yuXo4j6uE3PIz0mzctmV-65JsOLrE7N_D_bhNB6gtz7mA1qjva6wCpsDPQ'
+spotifyApi.token = 'BQAji1kYxVUFKbJagpshoFXAViS7f4YFdBsryUEp3nZOkajcgj4uVThpesaXvwNKqqsxnko2bcOJo95_OCBkE-OCeMHpcIWWyQyR0ckCeWWh59L3gQhHtFiITzz9hF8M1UikaUP8AW69mxm_IaDD9IoBtUaNxHEmZw'
 
 //#region register
 
@@ -491,8 +491,15 @@ class Song extends React.Component {
         const { props: { goSongBack }} = this
         goSongBack()
     }
+
     addToFavourite = (id) => {
         const {props: { addFavourite }} = this
+
+        if (window.actualUser.favourite.includes(id)) {
+            this.setState({ liked: true })
+        } else {
+            this.setState({ liked: false})
+        }
 
         this.setState({ liked: !this.state.liked})
 
@@ -503,6 +510,9 @@ class Song extends React.Component {
         const {props: {song: { name, id, preview_url }}, goBack, addToFavourite} = this
         let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} loop controls></audio>
 
+        let heart = window.actualUser.favourite.includes(id)? "fas fa-heart centerMe heart" : "far fa-heart centerMe heart"
+    
+
         return <section className="song container-fluid">
         <h3 className="title">Song</h3>
         <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
@@ -512,7 +522,7 @@ class Song extends React.Component {
                     <p className="card-text align-center">{name}</p>
                     <div className="row">
                         <div className="col-10">{audio}</div>
-                        <i onClick={() => addToFavourite(id)} className={this.state.liked === true? "fas fa-heart centerMe" : "far fa-heart centerMe"} ></i>
+                        <i onClick={() => addToFavourite(id)} className={heart}></i>
                     </div>
                 </div>
             </div>
@@ -537,8 +547,5 @@ class Hover extends React.Component {
 }
 
 //#endregion
-
-//<button className="btn btn-default" key={id+id} onClick={() => toFavourite(name)}>Fav</button>
-//</div>
 
 ReactDOM.render(<App />, document.getElementById('root'))

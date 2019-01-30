@@ -1,3 +1,6 @@
+import spotifyApi from './spotify-api-1.0.0'
+import users from './data'
+
 /**
  * Abstraction of business logic.
  */
@@ -168,3 +171,5 @@ const logic = {
         spotifyApi.retrieveSong(id, callback)
     }
 }
+
+export default logic
