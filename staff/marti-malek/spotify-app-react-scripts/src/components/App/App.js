@@ -7,10 +7,11 @@ import Albums from '../Albums'
 import Tracks from '../Tracks'
 import Song from '../Song'
 import logic from '../../logic'
+import Favourite from '../Favourites'
 import '../Search/index.sass'
 
 class App extends Component {
-  state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible:false, artists: [], albums: [], tracks: [], song: {}, popover: [] }
+  state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', userEmail: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible:false, favouriteVisible:false, artists: [], albums: [], tracks: [], song: {}, popover: [], favouriteTracks: [], user: {} }
 
   toggleHidden = () => {
       this.setState({
@@ -48,6 +49,13 @@ class App extends Component {
       this.setState({
           songVisible: false,
           tracksVisible: true
+      })
+  }
+
+  handleFavsBack = () => {
+      this.setState({
+          favouriteVisible: false,
+          searchVisible: true
       })
   }
 
@@ -134,8 +142,11 @@ class App extends Component {
       try {
           logic.login(email, password, user => {
               console.log(user)
+              /* this.setState({user: user, userEmail: user.email}) */
+              this.state.user = user
+              this.state.userEmail = user.email
 
-              window.actualUser = user
+              window.myState = this.state
 
               this.setState({ loginFeedback: '' })
           })
@@ -148,25 +159,54 @@ class App extends Component {
       }
   }
   handleFavourite = (id) => {
-      const email = window.actualUser.email
-      logic.toggleFavourite(id, email, () => {
-          console.log('Added to favourites')
+      const {state: {userEmail, user}} = this
+
+      logic.toggleFavourite(id, userEmail, () => {
+        this.setState({favouriteTracks: user.favourite})  
+        console.log('Added to favourites')
       })
   }
   
+  handleFavourites = () => {
+      /* const {state: {favouriteTracks, user}} = this
+
+
+    try {
+        logic.retrieveSong(trackId, (error, song) => {
+            if (error) {
+                console.error(error.message)
+            } else {
+                this.setState({})
+            }
+        })
+    } catch ({message}) {
+        console.error(message)
+    } */
+
+      this.setState({
+        searchVisible: false,
+        artistsVisible: false,
+        albumsVisible: false,
+        tracksVisible: false,
+        loginVisible: false,
+        favouriteVisible: true
+      })
+  }
+
   render() {
 
-      const { state : { artists, albums, tracks, song, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack, handleFavourite } = this
+      const { state : { artists, albums, tracks, song, user, favouriteTracks, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible, favouriteVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack, handleFavourite, handleFavourites, handleFavsBack } = this
 
       return <main className="app">
       {loginVisible && <Login onLogin={handleLogin} onToRegister={this.loginHidden} feedback={loginFeedback}/>}
       {registerVisible && <Register onRegister={handleRegister} onToLogin={this.toggleHidden} feedback={registerFeedback}/>}
-      {searchVisible && <Search onSearch={handleSearch} feedback={searchFeedback} logOut={handleLogout}/>}
+      {searchVisible && <Search onSearch={handleSearch} feedback={searchFeedback} logOut={handleLogout} goToFavourites={handleFavourites}/>}
       {artistsVisible && <Artists artists={artists} onArtist={handleAlbum} goArtistsBack={handleArtistsBack}/>}
       {albumsVisible && <Albums albums={albums} onAlbum={handleTrack} goAlbumsBack={handleAlbumsBack}/>}
       {tracksVisible && <Tracks tracks={tracks} onTrack={handleSong} goTracksBack={handleTracksBack}/>}
-      {songVisible && <Song song={song} goSongBack={handleSongBack} addFavourite={handleFavourite}/>}
-      
+      {songVisible && <Song song={song} goSongBack={handleSongBack} addFavourite={handleFavourite} user={user}/>}
+      {favouriteVisible && <Favourite favouriteTracks={favouriteTracks} onTrackClick={handleSong} goFavsBack={handleFavsBack}/>}
+
       </main>
   }
 }

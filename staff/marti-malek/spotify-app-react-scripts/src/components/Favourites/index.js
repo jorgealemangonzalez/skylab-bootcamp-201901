@@ -1,33 +1,32 @@
 import React from 'react'
-import '../Search/index.sass'
+import '../Favourites/index.sass'
 
-
-class Tracks extends React.Component {
+class Favourite extends React.Component {
     goToSong = id => {
-        const {props: { onTrack }} = this
+        const {props: {onTrackClick}} = this
 
-        onTrack(id)
+        onTrackClick(id)
     }
 
     goBack = () => {
-        const { props: { goTracksBack }} = this
-        goTracksBack()
+        const {props: {goFavsBack}} = this
+
+        goFavsBack()
     }
     
     render() {
-        const {props: { tracks }, goToSong, goBack} = this
-
+        const {props: {favouriteTracks}, goToSong, goBack} = this
         return <section className="tracks container-fluid">
         <h3 className="title">Tracks</h3>
-        <button onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
+        <a onClick={() => goBack()}className="btn-sm btn-secondary goBack" id="goBack">Go Back</a>
         <ul>
             {
-                tracks.map(({ name, id, duration_ms}) => {
+                favouriteTracks.map(({ name, id, duration_ms}) => {
                     const duration = ((duration_ms / 1000) / 60)
                     const durationRound = duration.toFixed(2) + ' M'
 
                     return <li key={id} className="row" onClick={() => goToSong(id)} data-id={id} id="cursor">
-                    <p className="pr-3">{name}</p><p><strong>{durationRound}</strong></p>
+                    <p className="pr-3">${name}</p><p><strong>${durationRound}</strong></p>
                 </li>
                 })
             }
@@ -36,4 +35,4 @@ class Tracks extends React.Component {
     }
 }
 
-export default Tracks
+export default Favourite

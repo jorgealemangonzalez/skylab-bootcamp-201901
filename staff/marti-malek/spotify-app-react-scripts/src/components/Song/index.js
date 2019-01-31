@@ -12,6 +12,11 @@ class Song extends React.Component {
     addToFavourite = (id) => {
         const {props: { addFavourite }} = this
 
+        addFavourite(id)
+    }
+    /* addToFavourite = (id) => {
+        const {props: { addFavourite }} = this
+
         if (window.actualUser.favourite.includes(id)) {
             this.setState({ liked: true })
         } else {
@@ -21,13 +26,13 @@ class Song extends React.Component {
         this.setState({ liked: !this.state.liked})
 
         addFavourite(id)
-    }
+    } */
 
     render() {
-        const {props: {song: { name, id, preview_url }}, goBack, addToFavourite} = this
+        const {props: {user, song: { name, id, preview_url }}, goBack, addToFavourite} = this
         let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} loop controls></audio>
 
-        let heart = window.actualUser.favourite.includes(id)? "fas fa-heart centerMe heart" : "far fa-heart centerMe heart"
+        let heart = user.favourite.includes(id)? "fas fa-heart centerMe heart" : "far fa-heart centerMe heart"
     
 
         return <section className="song container-fluid">

@@ -21,13 +21,20 @@ class Search extends React.Component {
         logOut()
     }
 
+    handleFavourites = () => {
+        const { props: {goToFavourites }} = this
+
+        goToFavourites()
+    }
+
     render () {
-        const { handleSearchInput, handleFormSubmit, handleLogout, props: {feedback} } = this
+        const { handleSearchInput, handleFormSubmit, handleLogout, handleFavourites, props: {feedback} } = this
 
         return <section className="search container-fluid col-12">
         <form onSubmit={handleFormSubmit}>
             <div className="input-group form-group">
                 <a href="#" id="logout__btn" onClick={handleLogout} className="btn-sm btn-primary">Log Out</a>
+                <button onClick={handleFavourites} className="btn btn-sm btn-dark">Favourites</button>
                 <input className="form-control" type="text" placeholder="Search your favourite artists..." name="query" onChange={handleSearchInput}/>
                 <button className="btn btn-default" type="submit"><i className="fas fa-search"></i></button>
             </div>

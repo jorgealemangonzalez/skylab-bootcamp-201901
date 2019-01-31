@@ -7,7 +7,7 @@ import users from './data'
 const logic = {
     /**
      * 
-     * Toggles between pushing an id of a song to the array of favourite songs.
+     * Toggles between pushing and deleting an id of a song to the array of favourite songs.
      * 
      * @param {string} id 
      * @param {string} email 
@@ -102,7 +102,8 @@ const logic = {
             name: name,
             surname: surname,
             email: email,
-            password: password
+            password: password,
+            favourites: []
         })
 
         callback()
