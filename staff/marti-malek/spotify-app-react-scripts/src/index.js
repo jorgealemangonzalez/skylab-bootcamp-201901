@@ -3,9 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.sass';
 import App from './components/App/App';
 import * as serviceWorker from './serviceWorker';
-import spotifyApi from './spotify-api-1.0.0';
+import spotifyApi from './spotify-api/index';
 
-spotifyApi.token= 'BQAomOgCUNhHrnkYirSW7uIJIxgBSR-GgdHVf50dlmgH4mFh3cF-kU12c4HYeuUG3WqV4g4nIgjJvqlkfHQRPhHSswhAfXDkipYGPF7CsLag2Zp1rKHXAq2CIWMpPXiWi_4AuWCxcWj_nYXDT99UZ2sYw2IQhu5Ymg'
+spotifyApi.token= 'BQDirEp46SznIkAjVE0M5F96cqsKT54u7TN2q_89DbkNBuebsz2TcnAH8y7dXC5comXhSdVSdqu72dn6hiPcVyfoXpKsRPEbcCmH0mrXq4YdoodiUrvgER1EOCRPFoJUoaT5vZCinar4AheHqiqRbLCnuOZOZRkjaw'
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

@@ -6,7 +6,7 @@ import Artists from '../Artists'
 import Albums from '../Albums'
 import Tracks from '../Tracks'
 import Song from '../Song'
-import logic from '../../logic'
+import logic from '../../logic/logic'
 import Favourite from '../Favourites'
 import '../Search/index.sass'
 

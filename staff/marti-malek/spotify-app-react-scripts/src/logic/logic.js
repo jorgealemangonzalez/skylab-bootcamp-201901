@@ -1,5 +1,5 @@
-import spotifyApi from './spotify-api-1.0.0'
-import users from './data'
+import spotifyApi from '../spotify-api/index'
+import users from '../data'
 
 /**
  * Abstraction of business logic.
@@ -121,7 +121,7 @@ const logic = {
 
         if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`)
 
-        spotifyApi.searchArtists(query, callback)
+        spotifyApi.searchArtists(query)
     },
     /**
      * 
@@ -137,7 +137,7 @@ const logic = {
 
         if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`)
 
-        spotifyApi.retrieveAlbums(artistId, callback)
+        spotifyApi.retrieveAlbums(artistId)
     },
     /**
      * 
@@ -153,7 +153,7 @@ const logic = {
 
         if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`)
 
-        spotifyApi.retrieveTracks(albumId, callback)
+        spotifyApi.retrieveTracks(albumId)
     },
     /**
      * 
@@ -169,7 +169,7 @@ const logic = {
 
         if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`)
 
-        spotifyApi.retrieveSong(id, callback)
+        spotifyApi.retrieveSong(id)
     }
 }
 
