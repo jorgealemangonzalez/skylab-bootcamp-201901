@@ -9,7 +9,7 @@ const userApi = {
         if (typeof password !== 'string') throw TypeError(`${password} is not a string`)
         if (!password.trim().length) throw Error('password is empty')
 
-        if (password.toString() !== passwordConfirm.toString()) throw Error ("passwords don't match")
+        /* if (password.toString() !== passwordConfirm.toString()) throw Error ("passwords don't match") */
 
         return fetch('https://skylabcoders.herokuapp.com/api/user', {
             method: 'POST',

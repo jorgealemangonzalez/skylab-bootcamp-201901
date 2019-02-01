@@ -4,10 +4,8 @@ import userApi from '.'
 
 describe('user api', () => {
     
-    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNTMwM2Q4NjY3ZmYyMDAwOWU1NGYxOSIsImlhdCI6MTU0OTAxNTcxNiwiZXhwIjoxNTQ5MDE5MzE2fQ.GWZF2cl5rMuXhl6qdluZ4y-5M_rpVg7rRukjXHL1xAc'
+    const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVjNTMwM2Q4NjY3ZmYyMDAwOWU1NGYxOSIsImlhdCI6MTU0OTA1ODI5MywiZXhwIjoxNTQ5MDYxODkzfQ.al8I-yUDrl5zj07M52y9dwohxJfXAAL7pjCWeYcYy7I'
     const testId = '5c5303d8667ff20009e54f19'
-    
-    const favourites = ['a','b','c']
     
     describe('register', () => {
         const name = 'manuel'
@@ -31,10 +29,11 @@ describe('user api', () => {
         )
     })
     describe('authenticate', () => {
-        const name = 'manuel'
+        const name = 'manuel2'
         const surname = 'barzi'
         const email = `manuelbarzi-${Math.random()}`
         const password = '123'
+        const nonExistingEmail = 'hello@mail.com'
 
         let _id
         
@@ -52,20 +51,20 @@ describe('user api', () => {
         )
         
         it('should fail on non-existing user', () =>
-            userApi.authenticate('johndoe@mail.com', password)
+            userApi.authenticate(nonExistingEmail, password)
             .then(() => {
                 throw Error('should not have passed by here')
             })
             .catch(error => {
                 expect(error).toBeDefined()
-                expect(error.message).toBe(`user with username \"johndoe@mail.com\" does not exist`)
+                expect(error.message).toBe(`user with username \"${nonExistingEmail}\" does not exist`)
             })
         )
     })
     describe('retrieve', () => {
-        const name = 'manuel'
+        const name = 'manuel3'
         const surname = 'barzi'
-        const email = `manuelbarzi-${Math.random()}`
+        const email = `manuelbarzi2-${Math.random()}`
         const password = '123'
 
         let _id, _token
@@ -97,44 +96,70 @@ describe('user api', () => {
         })
     })
     describe('update', () => {
+        const name = 'Manuel'
+        const surname = 'Barzi'
+        const username = `manuelbarzi-${Math.random()}`
+        const password = '123'
+
+        let _id, _token
+
+        beforeEach(() =>
+            userApi.register(name, surname, username, password)
+                .then(id => _id = id)
+                .then(() => userApi.authenticate(username, password))
+                .then(({ token }) => _token = token)
+        )
         it('should succeed with correct data', () => {
-            return userApi.authenticate(email, password)
-                .then((data) =>
-                    userApi.update(data.id, data.token, favourites)
-                        .then(userApi.retrieve(testId,testToken)
-                        .then(data => {
-                            expect(data.id).toBeDefined()
-                            expect(data.username).toBeDefined()
-                            expect(data.favourites).toBeDefined()
-                        })
-                        .catch(error => expect(error).toBeUndefined()))
-                )
+
+            const data = {name: 'Ali', surname: 'Baba', age: 87}
+
+                userApi.update(_id, _token, data)
+                    .then(userApi.retrieve(testId,testToken)
+                    .then(user => {
+                        expect(user.id).toBe(_id)
+                        expect(user.name).toBe(data.name)
+                        expect(user.surname).toBeDefined(data.surname)
+                        expect(user.age).toBe(data.age)
+                    })
+                    .catch(error => expect(error).toBeUndefined()))
         })
         it('should fail with invalid data', () => {
-            return userApi.authenticate(email, password)
-                .then((data) =>
-                    userApi.update('invalidId', data.token, favourites)
-                        .then(() => {
-                            throw Error('should not have passed by here')
-                        })
-                        .catch(error => {
-                            expect(error).toBeDefined()
-                            expect(error.message).toBe(`token id \"${data.id}\" does not match user \"invalidId\"`)
-                        })
-                )
+
+            const data = {name: 'Ali', surname: 'Baba', age: 87}
+
+                userApi.update('invalidId', _token, data)
+                    .then(() => {
+                        throw Error('should not have passed by here')
+                    })
+                    .catch(error => {
+                        expect(error).toBeDefined()
+                        expect(error.message).toBe(`token id \"${_id}\" does not match user \"invalidId\"`)
+                    })
         })
     })
     describe('remove', () => {
+
+        const name = 'Manuel'
+        const surname = 'Barzi'
+        const username = `manuelbarzi-${Math.random()}`
+        const password = '123'
+
+        let _id, _token
+
+        beforeEach(() =>
+            userApi.register(name, surname, username, password)
+                .then(id => _id = id)
+                .then(() => userApi.authenticate(username, password))
+                .then(({ token }) => _token = token)
+        )
+
         it('should succeed with correct data', () => {
-            return userApi.authenticate(email, password)
-            .then((data) =>
-                userApi.remove(data.id, data.token)
-                    .then(user => {
-                        expect(user.id).toBeUndefined()
-                        expect(user.username).toBeUndefined()
+                userApi.remove(_id, _token, username, password)
+                    .then(userApi.retrieve(_id, _token))
+                    .then(() => {
+                        throw Error('should not pass by here')
                     })
-                    .catch(error => expect(error).toBeUndefined())
-        )    
+                    .catch(({message}) => expect(message).toBe(`user withid \"${_id}\" does not exist`))
         })
     })
 })
