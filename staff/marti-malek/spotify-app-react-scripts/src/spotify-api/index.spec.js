@@ -4,7 +4,7 @@ import spotifyApi from '.'
 
 const { env: { REACT_APP_SPOTIFY_API_TOKEN } } = process
 
-spotifyApi.token = /* REACT_APP_SPOTIFY_API_TOKEN */'BQDmUk4fOc_1-BQGOz3H73bUjuVlHO528l0mE_U9A37wfOKdBR55KzhkB9Fdi70Jh7gNPaWFqNooBEHNOQfxlhNad7NGLxsrvqRuLsNRRyNrgQKgmhgwK_a_bj88Mk8E1bM2QgSuwTI8JF9WibHWooJjJ5nPn9dyFg'
+spotifyApi.token = REACT_APP_SPOTIFY_API_TOKEN
 
 describe('spotify api', () => {
     describe('search artists', () => {

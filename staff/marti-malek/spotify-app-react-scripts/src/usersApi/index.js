@@ -23,10 +23,11 @@ const userApi = {
                 const { status } = response
 
                 if (status === 'OK') return response.data.id
-                else throw Error(response.error)
+
+                throw Error(response.error)
             })
     },
-    login(email, password) {
+    authenticate(email, password) {
         if (typeof email !== 'string') throw TypeError(`${email} is not a string`)
         if (!email.trim().length) throw Error('email is empty')
 
@@ -45,7 +46,8 @@ const userApi = {
             const { status } = response
 
             if (status === 'OK') return response.data
-            else throw Error(response.error)
+
+            throw Error(response.error)
         })
     },
     retrieve(id,token) {
@@ -66,29 +68,30 @@ const userApi = {
             const { status } = response
 
             if (status === 'OK') return response.data
-            else throw Error(response.error)
+
+            throw Error(response.error)
         })
     },
-    update(id, token) {
-        var items = arguments.slice(2)
+    update(id, token, item) {
         return fetch(`https://skylabcoders.herokuapp.com/api/user/${id}`, {
             method: 'PUT',
             headers: {
                 authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({items})
+            body: JSON.stringify(item)
         })
         .then(response => response.json())
         .then(response => {
             const { status } = response
 
-            if (status === 'OK') return response
-            else throw Error(response.error)
+            if (status === 'OK') return
+
+            throw Error(response.error)
         })
     } ,
     remove(id, token, email, password) {
         return fetch(`https://skylabcoders.herokuapp.com/api/user/${id}`, {
-            method: 'DEL',
+            method: 'DELETE',
             headers: {
                 authorization: `Bearer ${token}`,
             },
@@ -98,8 +101,9 @@ const userApi = {
         .then(response => {
             const { status } = response
 
-            if (status === 'OK') return response.data
-            else throw Error(response.error)
+            if (status === 'OK') return
+
+            throw Error(response.error)
         })
     }
 }

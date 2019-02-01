@@ -68,15 +68,18 @@ class App extends Component {
 
   handleSearch = (query) => {
       try {
-          logic.searchArtists(query, (error, artists) => {
-              if (error) {
+          const artistsList = logic.searchArtists(query)
+          artistsList.then(function(artists) {
+              this.setState({ artistsVisible: true, artists})
+          }.bind(this))
+            this.setState({ searchFeedback: '' })
+              /* if (error) {
                   console.error(error.message)
                   this.setState({ searchFeedback: error.message })
               } else {
                   this.setState({ artistsVisible: true, artists})
                   this.setState({ searchFeedback: '' })
-              }
-          })
+              } */
       } catch ({message}) {
           this.setState({ searchFeedback: message, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible: false })
       }

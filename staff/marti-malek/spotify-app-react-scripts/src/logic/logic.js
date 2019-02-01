@@ -114,14 +114,18 @@ const logic = {
      * @param {string} query - The search criteria
      * @param {function} callback - The expression to evaluate on response
      */
-    searchArtists(query, callback) {
+    searchArtists(query) {
         if (typeof query !== 'string') throw TypeError (`${query} is not a string`)
 
         if (!(query.trim().length)) throw Error ('query is empty')
 
-        if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`)
+        /* if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`) */
 
-        spotifyApi.searchArtists(query)
+        return spotifyApi.searchArtists(query)
+            .then(artists => {
+                console.log(artists)
+                return artists
+            })
     },
     /**
      * 
