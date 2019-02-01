@@ -7,6 +7,7 @@
  */
 const spotifyApi = {
     token: '',
+    path: 'https://api.spotify.com/v1/',
     /**
      * Searches artists.
      * 
@@ -21,7 +22,7 @@ const spotifyApi = {
 
         if (!query.trim().length) throw Error('query is empty')
 
-        return fetch(`https://api.spotify.com/v1/search?q=${query}&type=artist`, {
+        return fetch(`${this.path}search?q=${query}&type=artist`, {
             method: 'GET',
             headers: {
                 authorization: `Bearer ${this.token}`
@@ -41,13 +42,13 @@ const spotifyApi = {
      * @param {*} artistId 
      * @param {*} callback 
      */
-    retrieveAlbums(artistId, callback) {
+    retrieveAlbums(artistId) {
 
         if (typeof artistId !== 'string') throw TypeError(`${artistId} is not a string`)
 
         if (!artistId.trim().length) throw Error('artistId is empty')
 
-        return fetch(`https://api.spotify.com/v1/artists/${artistId}/albums`, {
+        return fetch(`${path}artists/${artistId}/albums`, {
             method: 'GET',
             headers: {
                 authorization: `Bearer ${this.token}`
@@ -56,13 +57,13 @@ const spotifyApi = {
             .then(res => res.json())
             .then(({items}) => items)
     },
-    retrieveTracks(albumId, callback) {
+    retrieveTracks(albumId) {
 
         if (typeof albumId !== 'string') throw TypeError(`${albumId} is not a string`)
 
         if (!albumId.trim().length) throw Error('albumId is empty')
 
-        return fetch(`https://api.spotify.com/v1/albums/${albumId}/tracks`, {
+        return fetch(`${path}albums/${albumId}/tracks`, {
             method: 'GET',
             headers: {
                 authorization: `Bearer ${this.token}`
@@ -71,13 +72,13 @@ const spotifyApi = {
             .then(res => res.json())
             .then(({ items }) => items)
     },
-    retrieveSong(id, callback) {
+    retrieveSong(id) {
 
         if (typeof id !== 'string') throw TypeError(`${id} is not a string`)
 
         if (!id.trim().length) throw Error('id is empty')
 
-        return fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+        return fetch(`${path}tracks/${id}`, {
             method: 'GET',
             headers: {
                 authorization: `Bearer ${this.token}`
