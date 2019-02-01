@@ -34,7 +34,7 @@ class Search extends React.Component {
         <form onSubmit={handleFormSubmit}>
             <div className="input-group form-group">
                 <a href="#" id="logout__btn" onClick={handleLogout} className="btn-sm btn-primary">Log Out</a>
-                <button onClick={handleFavourites} className="btn btn-sm btn-dark">Favourites</button>
+                <a href="#" onClick={handleFavourites} className="btn btn-sm btn-dark">Favourites</a>
                 <input className="form-control" type="text" placeholder="Search your favourite artists..." name="query" onChange={handleSearchInput}/>
                 <button className="btn btn-default" type="submit"><i className="fas fa-search"></i></button>
             </div>
