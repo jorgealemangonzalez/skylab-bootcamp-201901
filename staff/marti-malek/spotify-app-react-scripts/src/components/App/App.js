@@ -86,7 +86,11 @@ class App extends Component {
   }
   handleAlbum = (artistId) => {
       try {
-          logic.retrieveAlbums(artistId, (error, albums) => {
+          logic.retrieveAlbums(artistId)
+            .then(albums => {
+                this.setState({albumsVisible: true, artistsVisible: false, albums})
+            })
+        /* logic.retrieveAlbums(artistId, (error, albums) => {
               if (error) {
                   console.error(error.message)
               } else {
@@ -95,7 +99,10 @@ class App extends Component {
           })
       } catch ({message}) {
           console.error(message)
+      } */
+      } catch {
       }
+    
   }
   handleTrack = (albumId) => {
       try {
