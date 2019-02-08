@@ -4,20 +4,11 @@ import './index.sass'
 import Feedback from '../Feedback'
 
 class InputsFridge extends React.Component {
-<<<<<<< HEAD
-    state = {
-        numberInputs: 1,
-        userCal: 2500,
-        calories: 0,
-        diet: 'indifferent',
-        activeVegan: false,
-=======
     state = { 
         numberInputs: 1, 
         calories: "0",
         diet: 'indifferent', 
         activeVegan: false, 
->>>>>>> f2a658b19bc5f16cd10326d29d819d16a3cd95ae
         activeVegeterian: false,
         activeGluten: false,
         activePeanut: false,
@@ -157,14 +148,9 @@ class InputsFridge extends React.Component {
                         <div className="col-12 col-sm-3 pl-sm-2 p-0 mt-2">
                             <button onClick={this.handleSugar} className={`btn btn-outline-dark col-12 ${activeSugar ? `active` : ``}`}>Low-Sugar</button>
                         </div>
-<<<<<<< HEAD
-                        <div className="col-12 col-sm-3 pl-sm-2 p-0 mt-2">
-                            <button onClick={this.handlePeanut} className={`btn btn-outline-dark col-12 ${activePeanut ? `active` : ``}`}>Peanut-Free</button>
-=======
                         {this.props.sincronSearchFeedback && <Feedback message={this.props.sincronSearchFeedback} />}
                         <div className="row flex mt-5">
                             <button type="submit" className="btn btn-dark col-12 mr-2">Search</button>
->>>>>>> f2a658b19bc5f16cd10326d29d819d16a3cd95ae
                         </div>
                     </div>
 
