@@ -1,4 +1,13 @@
 import logic from '.'
+import edamamApi from '../edamam-api'
+
+jest.setTimeout(30000);
+
+const { REACT_APP_EDAMAM_API_ID, REACT_APP_EDAMAM_API_KEY } = process.env
+
+edamamApi.app_id = REACT_APP_EDAMAM_API_ID
+
+edamamApi.app_key = REACT_APP_EDAMAM_API_KEY
 
 describe('logic', () => {
     describe('caloriesCounter', () => {
@@ -185,8 +194,9 @@ describe('logic', () => {
                 .then(() => {
                     return logic.retrieve(_id, _token)
                         .then(() => {
-                            expect(logic.__user__).toBeDefined()
-                            expect(logic.__user__.favourites.length).toBe(1)
+                            let favourites = logic.__user__ instanceof Object ? logic.__user__.favourites : JSON.parse(logic.__user__).favourites
+                            expect(favourites).toBeDefined()
+                            expect(favourites.length).toBe(1)
                         })
                 })
                 .then(() =>{
@@ -194,7 +204,8 @@ describe('logic', () => {
                         .then(() => {
                             return logic.retrieve(_id, _token)
                                 .then(() => {
-                                    expect(logic.__user__.favourites.length).toBe(0)
+                                    let favourites = logic.__user__ instanceof Object ? logic.__user__.favourites : JSON.parse(logic.__user__).favourites
+                                    expect(favourites.length).toBe(0)
                                 })
                         })
                 })

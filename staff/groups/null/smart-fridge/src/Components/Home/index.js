@@ -59,7 +59,7 @@ class Home extends React.Component{
         try {
             logic.update(sessionStorage.getItem('user-id'), sessionStorage.getItem('user-api-token') ,data)
                 .then (() => logic.retrieve(sessionStorage.getItem('user-id'), sessionStorage.getItem('user-api-token')))
-                .then (user => {
+                .then (() => {
                     this.props.history.push(`/home`)
                 })
                 .catch(error => this.setState({ editProfileFeedback: error.message }))
@@ -81,13 +81,14 @@ class Home extends React.Component{
     }
 
     handleOnDetail = recipeUri => {
+        debugger
 
         const {state: {recipes}} =this
      
         try{
             let recipe=logic.detail(recipeUri, recipes)
      
-            let ingredientsList=logic.generateLists(recipe.ingredientLines, this.state.queryList)
+            let ingredientsList=logic.generateLists(recipe.recipe.ingredientLines, this.state.queryList)
             this.setState({recipe, ingredientsList})
             this.props.history.push('/home/detail')
 
@@ -97,7 +98,7 @@ class Home extends React.Component{
     }
 
     handleBackToRecipes = () =>{
-        this.prop.history.push('/home/recipes')
+        this.props.history.push('/home/recipes')
     }
 
     handleGoBackHome = () => {
@@ -125,7 +126,7 @@ class Home extends React.Component{
                 {<Route exact path="/home" render={() =>  logic.userLoggedIn ? <InputsFridge onSearch={this.handleOnSearch} sincronSearchFeedback={sincronSearchFeedback}/> : <Redirect to="/" />} />}
                 {<Route path="/home/profile" render={() =>  logic.userLoggedIn ? <EditProfile onEditProfile={this.handleEditProfile} cancelButton={this.handleCancelButton} feedback={this.props.editProfileFeedback}/> : <Redirect to="/" />} />}
                 {<Route exact path="/home/recipes" render={() => (logic.userLoggedIn&& recipes) ? <Results recipes={recipes} onFavourite={this.handleOnFavourites} onDetail ={this.handleOnDetail}/> : <Redirect to = "/" />} />}
-                {<Route exact path="/home/detail" render={() => (logic.userLoggedIn && recipe)? <Detail recipe={recipe} ingredients={ingredientsList} backToRecipes={this.handleBackToRecipes} /> : <Redirect to = "/home/search" />} />}
+                {<Route exact path="/home/detail" render={() => (logic.userLoggedIn && recipe)? <Detail recipe={recipe} ingredients={ingredientsList} onFavouriteDetail={this.handleOnFavourites} backToRecipes={this.handleBackToRecipes} /> : <Redirect to = "/home/search" />} />}
                 {<Route path="/home/feedback" render={()=> (logic.userLoggedIn && searchFeedback)?<FeedbackSearch goBackSearch={this.handleGoBackSearch} message={searchFeedback}/>:<Redirect to="/home" /> }/>}
                 {<Route path="/home/favourites" render={() => (logic.userLoggedIn && favourites)? <Favourites favourites={favourites} goBackHome={this.handleGoBackHome} onFavouriteTrue={this.handleOnFavourites} message={favouritesFeedback}/>:<Redirect to="/home"/> }/>}
 

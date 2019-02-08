@@ -1,10 +1,15 @@
 import React from 'react'
+import { withRouter } from 'react-router-dom'
 import './index.sass'
 
 class Detail extends React.Component {
 
     handleBackToRecipes=()=>{
         this.props.backToRecipes()
+    }
+
+    handleOnFavourite = recipe => {
+        this.props.onFavouriteDetail(recipe)
     }
 
     render() {
@@ -14,15 +19,15 @@ class Detail extends React.Component {
             <div className='col-12 col-lg-4 mt-2 detail__result'>
                 <div className="card p-2">
                     <div className="card-body">
-                        <h5 className="card-title text-center mb-5">{recipe.label}</h5>
+                        <h5 className="card-title text-center mb-5">{recipe.recipe.label}</h5>
                         <div className='results__image-favorite'>
-                            <img className="card-img-top" alt="recipe" src={recipe.image}></img><i class="far fa-heart"></i>
+                            <img className="card-img-top" alt="recipe" src={recipe.recipe.image}></img><i onClick={() => this.handleOnFavourite(recipe)} className={JSON.parse(sessionStorage.getItem('user')).favourites.find(favorite=> favorite.recipe.uri===recipe.recipe.uri)? "far fa-heart fa-heart-red":"far fa-heart" }></i>
                         </div>
 
                         <div className='row mt-4'>
                             <button className="btn btn-outline-dark inline mt-2 col-6" onClick={this.handleBackToRecipes}>Back to Recipes</button>
                             <div className="col-6 pr-2">
-                                <a className="btn btn-dark inline mt-2" href={recipe.url} target="_blank" >Preparation</a>
+                                <a className="btn btn-dark inline mt-2" href={recipe.recipe.url} target="_blank" >Preparation</a>
                             </div>
                         </div>
 
@@ -62,4 +67,4 @@ class Detail extends React.Component {
 
 
 
-export default Detail
+export default withRouter(Detail)

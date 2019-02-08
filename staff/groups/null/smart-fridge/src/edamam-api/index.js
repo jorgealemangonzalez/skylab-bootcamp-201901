@@ -8,8 +8,8 @@
  */
 const edamamApi = {
     url: 'https://api.edamam.com/search',
-    app_id: 'fc7dd05d',
-    app_key: '600eb73ec6370f79b351ecaf5a42e345',
+    app_id: null,
+    app_key: null,
     /**
      * 
      * Searches for recipes with the desired query.

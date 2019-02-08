@@ -4,10 +4,14 @@ import logic from './logic'
 import './index.css';
 import App from './Components/App';
 import { HashRouter } from 'react-router-dom'
-import * as serviceWorker from './serviceWorker';
+import * as serviceWorker from './serviceWorker'
+import edamamApi from './edamam-api'
 
+const { REACT_APP_EDAMAM_API_ID, REACT_APP_EDAMAM_API_KEY } = process.env
 
+edamamApi.app_id = REACT_APP_EDAMAM_API_ID
 
+edamamApi.app_key = REACT_APP_EDAMAM_API_KEY
 
 logic.setUserId = id => id? sessionStorage.setItem('user-id', id) : sessionStorage.removeItem('user-id')
 logic.getUserId = () => sessionStorage.getItem('user-id')
