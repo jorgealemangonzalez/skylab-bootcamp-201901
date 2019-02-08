@@ -28,7 +28,7 @@ Users will sign up with their details of their gender, age, weight, height, life
 
 ### Class /Objects
 
-![Classes/Objects](images/classes-objects.png)
+![Classes/Objects](images/class-objects.png)
 
 ## Data model
 
