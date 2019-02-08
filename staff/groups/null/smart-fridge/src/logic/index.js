@@ -149,15 +149,16 @@ const logic = {
     */
     toggleFavourite(id, token, recipe) {
         return this.retrieve(id, token)
-            .then(() => {
-                let favourites = JSON.parse(this.__user__).favourites
+        .then(() => {
+                let user = this.__user__ instanceof Object ? this.__user__ : JSON.parse(this.__user__)
+                let favourites = user.favourites
                 let includeRecipe = favourites.find(r => recipe.recipe.uri === r.recipe.uri)
                 if (!includeRecipe) {
                     favourites.push(recipe)
                 } else {
                     favourites = favourites.filter(r => recipe.recipe.uri !== r.recipe.uri)
                 }
-                JSON.parse(this.__user__).favourites = favourites
+                user.favourites = favourites
                 
                 return this.update(id, token, {favourites})
                 
@@ -373,7 +374,7 @@ const logic = {
         
         recipes.find( element => {
             if(element.recipe.uri===recipeUri){
-                recipe=element.recipe
+                recipe=element
             }
         })
         if (!!recipe) return recipe

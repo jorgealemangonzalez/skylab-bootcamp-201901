@@ -2,6 +2,12 @@
 
 import edamamApi from '.'
 
+const { REACT_APP_EDAMAM_API_ID, REACT_APP_EDAMAM_API_KEY } = process.env
+
+edamamApi.app_id = REACT_APP_EDAMAM_API_ID
+
+edamamApi.app_key = REACT_APP_EDAMAM_API_KEY
+
 describe('edamam api', () => {
     describe('search recipes', () => {
         let query = 'chicken'
