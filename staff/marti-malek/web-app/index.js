@@ -14,20 +14,23 @@ let feedback = ''
 
 app.get('/home', (req, res) => {
     if (logic.__userId__ && logic.__userApiToken__) {
-    res.send(`<html>
-    <head>
-        <title>HELLO WORLD</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
-    </head>
-    <body>
-        <h1>HOME</h1>
-        <section class="register">
-            <h2>Heck Yeah!</h2>
-            BEST HOME EVER
-            </form>
-        </section>
-    </body>
-    </html>`)
+        logic.retrieveUser(logic.__userId__, logic.__userApiToken__)
+            .then(user => {
+                res.send(`<html>
+                <head>
+                    <title>HELLO WORLD</title>
+                    <link rel="stylesheet" type="text/css" href="style.css">
+                </head>
+                <body>
+                    <h1>HOME</h1>
+                    <section class="register">
+                        <h2>Heck Yeah!</h2>
+                        Welcome ${user.name}!
+                        </form>
+                    </section>
+                </body>
+                </html>`)
+            })
     } else {
         res.redirect('/login')
     }
