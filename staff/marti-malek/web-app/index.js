@@ -12,11 +12,16 @@ app.use(express.static('public'))
 
 let feedback = ''
 
-app.get('/home', (req, res) => {
-    if (logic.__userId__ && logic.__userApiToken__) {
-        logic.retrieveUser(logic.__userId__, logic.__userApiToken__)
-            .then(user => {
-                res.send(`<html>
+//Middleware for controlling if the user is logged in.
+loggedIn = (req, res, next) => {
+    if (logic.isUserLoggedIn) next()
+    else res.redirect('login')
+}
+
+app.get('/home', loggedIn, (req, res) => {
+    logic.retrieveUser(logic.__userId__, logic.__userApiToken__)
+        .then(user => {
+            res.send(`<html>
                 <head>
                     <title>HELLO WORLD</title>
                     <link rel="stylesheet" type="text/css" href="style.css">
@@ -30,10 +35,7 @@ app.get('/home', (req, res) => {
                     </section>
                 </body>
                 </html>`)
-            })
-    } else {
-        res.redirect('/login')
-    }
+        })
 })
 
 app.get('/register', (req, res) => {
@@ -122,16 +124,16 @@ app.post('/login', formBodyParser, (req, res) => {
     try {
         logic.logInUser(email, password)
             .then(() => res.redirect('/home'))
-            .catch (({ message }) => {
+            .catch(({ message }) => {
+                feedback = message
+
+                res.redirect('/login')
+            })
+    } catch ({ message }) {
         feedback = message
 
         res.redirect('/login')
-    })
-    } catch ({ message }) {
-    feedback = message
-
-    res.redirect('/login')
-}
+    }
 })
 
 app.listen(port, () => console.log(`server running on port ${port}`))
