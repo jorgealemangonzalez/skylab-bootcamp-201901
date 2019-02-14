@@ -148,6 +148,28 @@ describe('logic', () => {
                 logic.registerUser(name, surname, email, password, password)
             }).to.throw(Error,'surname cannot be empty')
         })
+        it('should fail on non-matching passwords', () => {
+            const name = 'Manuel'
+            const surname = 'Barzi'
+            const email = 'manuelbarzi@mail.com'
+            const password = '123'
+            const passwordConfirm = 'fail'
+
+            expect(() => {
+                logic.registerUser(name, surname, email, password, passwordConfirm)
+            }).to.throw(Error, 'passwords do not match')
+        })
+        it('should fail on non-matching passwords', () => {
+            const name = 'Manuel'
+            const surname = 'Barzi'
+            const email = 'manuelbarzi@mail.com'
+            const password = '123'
+            const passwordConfirm = ''
+
+            expect(() => {
+                logic.registerUser(name, surname, email, password, passwordConfirm)
+            }).to.throw(Error, 'password confirmation cannot be empty')
+        })
     })
 
     describe('log in user', () => {

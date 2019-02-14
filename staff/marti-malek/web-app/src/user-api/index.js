@@ -5,7 +5,7 @@ require('isomorphic-fetch')
 const userApi = {
     url: 'https://skylabcoders.herokuapp.com/api',
 
-    register(name, surname, username, password) {
+    register(name, surname, username, password, confirmPassword) {
         if (typeof name !== 'string') throw TypeError(`${name} is not a string`)
         if (!name.trim().length) throw Error('name is empty')
 
@@ -18,12 +18,17 @@ const userApi = {
         if (typeof password !== 'string') throw TypeError(`${password} is not a string`)
         if (!password.trim().length) throw Error('password is empty')
 
+        if (typeof confirmPassword !== 'string') throw TypeError(`${confirmPassword} is not a string`)
+        if (!confirmPassword.trim().length) throw Error('your password confirmation is empty')
+
+        if (password !== confirmPassword) throw Error("passwords don't match")
+
         return fetch(`${this.url}/user`, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json'
             },
-            body: JSON.stringify({ name, surname, username, password })
+            body: JSON.stringify({ name, surname, username, password, confirmPassword })
         })
             .then(response => response.json())
             .then(response => {
@@ -88,7 +93,9 @@ const userApi = {
         if (typeof token !== 'string') throw TypeError(`${token} is not a string`)
         if (!token.trim().length) throw Error('token is empty')
 
-        if (data.constructor !== Object) throw TypeError(`${data} is not an object`)
+        if (data === undefined || data === null) throw TypeError(`${data} is not an object`)
+
+        if (data.constructor !== Object && data.constructor !== Array) throw TypeError(`${data} is not an object`)
 
         return fetch(`${this.url}/user/${id}`, {
             method: 'PUT',
