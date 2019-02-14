@@ -12,7 +12,7 @@ app.use(express.static('public'))
 
 let feedback = ''
 
-//Middleware for controlling if the user is logged in.
+//Middleware to control if the user is logged in.
 loggedIn = (req, res, next) => {
     if (logic.isUserLoggedIn) next()
     else res.redirect('login')
