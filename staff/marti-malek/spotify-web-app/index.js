@@ -125,14 +125,11 @@ app.post('/search', formBodyParser, (req, res) => {
 
     const { body: { query }} = req
 
-    const logic = logicFactory.create(req)
-
     res.redirect(`/search&${query}`)
 })
 
 app.get('/search&:query', (req, res) => {
     try {
-
         const { session: { feedback }, params: { query } } = req
         
         const logic = logicFactory.create(req)
@@ -153,16 +150,15 @@ app.get('/search&:query', (req, res) => {
     }
 })
 
-app.get('/search&album&artistId', (req, res) => {
+app.get('/search-artist&:artistId', (req, res) => {
     try {
 
         const { session: { feedback }, params: { artistId } } = req
-        debugger
         
         const logic = logicFactory.create(req)
 
         if (logic.isUserLoggedIn)
-            logic.retrieveAlbums(artistId)
+        logic.retrieveAlbums(artistId)
                 .then(albums => res.render('albums', {albums, feedback}))
                 .catch(({ message }) => {
                     req.session.feedback = message
@@ -177,7 +173,7 @@ app.get('/search&album&artistId', (req, res) => {
     }
 })
 
-app.get('/search&track&:albumId', (req, res) => {
+app.get('/search-album&:albumId', (req, res) => {
     try {
 
         const { session: { feedback }, params: { albumId } } = req
@@ -200,6 +196,28 @@ app.get('/search&track&:albumId', (req, res) => {
     }
 })
 
+app.get('/search-song&:trackId', (req, res) => {
+    try {
+
+        const { session: { feedback }, params: { trackId } } = req
+        debugger
+        const logic = logicFactory.create(req)
+
+        if (logic.isUserLoggedIn)
+            logic.retrieveTrack(trackId)
+                .then(song => res.render('song', {song, feedback}))
+                .catch(({ message }) => {
+                    req.session.feedback = message
+                    debugger
+                    res.redirect('/home')
+                })
+        else res.redirect('/login')
+    } catch ({ message }) {
+        req.session.feedback = message
+        debugger
+        res.redirect('/home')
+    }
+})
 
 app.post('/logout', (req, res) => {
     const logic = logicFactory.create(req)

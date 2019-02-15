@@ -7,7 +7,7 @@ block content
         ul
             each album in albums
                 li
-                    a(href=`/search&track&${album.id}`)= album.name
+                    a(href=`/search-album&${album.id}`)= album.name
                             if album.images[0]
                                 img(src=`${album.images[0].url}` width="100px")
                             else 

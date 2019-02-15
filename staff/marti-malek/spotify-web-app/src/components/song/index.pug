@@ -1,0 +1,10 @@
+extends ../layout
+
+include ../feedback/index
+
+block content
+    section PLAYER
+        h3 #{song.name} 
+            audio(src=`${song.preview_url}` controls)
+            h5= `${song.duration_ms / 60000} m`
+        
