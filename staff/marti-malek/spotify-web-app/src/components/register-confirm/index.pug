@@ -1,0 +1,11 @@
+extends ../layout
+
+include ../feedback/index
+
+block content
+    section.register
+        h2 Registration confirmation
+        |         Ok, user #{email}
+        |  successfully registered, please proceed to 
+        a(href='/login') login
+        | .

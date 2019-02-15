@@ -1,0 +1,14 @@
+extends ../layout
+
+include ../feedback/index
+
+block content
+    section ALBUMS
+        ul
+            each album in albums
+                li
+                    a(href=`/search&track&${album.id}`)= album.name
+                            if album.images[0]
+                                img(src=`${album.images[0].url}` width="100px")
+                            else 
+                                img(src=`https://www.google.es/imgres?imgurl=https%3A%2F%2Fwww.bensound.com%2Fbensound-img%2Fhappyrock.jpg&imgrefurl=https%3A%2F%2Fwww.bensound.com%2Froyalty-free-music&docid=6bPI5dSHVd-hDM&tbnid=soAEf4Owr8SbiM%3A&vet=10ahUKEwi23prvsb7gAhW16uAKHfiSCJQQMwhpKAIwAg..i&w=358&h=250&client=opera&bih=627&biw=1366&q=music%20photo&ved=0ahUKEwi23prvsb7gAhW16uAKHfiSCJQQMwhpKAIwAg&iact=mrc&uact=8` width="100px")
