@@ -1,10 +1,15 @@
 extends ../layout
 
 include ../feedback/index
+include ../search/index
 
 block content
-    section PLAYER
-        h3 #{song.name} 
-            audio(src=`${song.preview_url}` controls)
-            h5= `${song.duration_ms / 60000} m`
-        
+    +search
+    a(class="btn-sm btn-secondary m-3" href="/home") Go Home
+    section(class="container-fluid d-flex justify-content-center")
+        ul(class="card d-flex justify-content-center m-3 p-3" style="width:fit-content; padding:0; height:fit-content")
+            p(class='card-text d-flex justify-content-center') #{song.name} - #{(song.duration_ms /60000).toFixed(2)+' M'}
+            div(class='col-3')
+                audio(src=`${song.preview_url}` class="d-flex justify-content-center" controls)
+        if feedback
+            +feedback

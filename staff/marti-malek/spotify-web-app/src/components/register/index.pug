@@ -3,18 +3,30 @@ extends ../layout
 include ../feedback/index
 
 block content
-    section.register
+    section(class='container-fluid')
       h2 Register
       form(method='POST', action='/register')
-        input(name='name', type='text', placeholder='name', required='')
-        input(name='surname', type='text', placeholder='surname', required='')
-        input(name='email', type='email', placeholder='email', required='')
-        input(name='password', type='password', placeholder='password', required='')
-        input(name='passwordConfirm', type='password', placeholder='confirm password', required='')
-        button(type='submit') Register
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Name
+          input(class='form-control mr-3 rainbow', name='name', type='text', placeholder='John', required="")
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Surname
+          input(class='form-control mr-3 rainbow', name='surname', type='text', placeholder='Doe', required="")
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Email
+          input(class='form-control mr-3 rainbow', name='email', type='email', placeholder='something@example.com', required="")
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Password
+          input(class='form-control mr-3 rainbow', name='password', type='password', placeholder='3xampl3', required="")
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Confirm Password
+          input(class='form-control mr-3 rainbow', name='passwordConfirm', type='password', placeholder='confirm password', required='')
+        button(class='btn btn-primary login__btn',style="margin-left:1.9rem", type='submit') Register
+        a(class='ml-2 btn btn-default', href="/login") Log In
       if feedback
         +feedback(feedback, 'warn')
-      | Go 
-      a(href='/') Home
-      |  or 
-      a(href='/login') Login

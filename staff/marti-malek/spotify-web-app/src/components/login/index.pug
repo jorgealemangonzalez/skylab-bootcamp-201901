@@ -3,15 +3,17 @@ extends ../layout
 include ../feedback/index
 
 block content
-    section.login
-      h2 Login
-      form(method='POST', action='/login')
-        input(name='email', type='email', placeholder='email', required='')
-        input(name='password', type='password', placeholder='password', required='')
-        button(type='submit') Login
-      if feedback
-        +feedback(feedback, 'error')
-      | Go 
-      a(href='/') Home
-      |  or 
-      a(href='/register') Register
+    section(class="container-fluid")
+      form(method='POST', action='/login', class='col-12')
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Email
+          input(class='form-control rainbow', name='email', type='email', placeholder='something@example.com', required='')
+        div(class='input-group col-12 m-3')
+          div(class='input-group-prepend')
+            span(class='input-group-text') Password
+          input(class='form-control rainbow', name='password', type='password', placeholder='3xampl3', required='')
+        button(class='btn btn-primary login__btn', style="margin-left:1.9rem" type="submit") Log In
+        a(class='ml-2 btn btn-default', href="/register") Register
+        if feedback
+          +feedback(feedback, 'error')

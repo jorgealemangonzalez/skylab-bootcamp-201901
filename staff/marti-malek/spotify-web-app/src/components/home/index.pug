@@ -2,15 +2,11 @@ extends ../layout
 
 include ../feedback/index
 include ../user/index
+include ../search/index
 
 block content
-  section.home
-    | Welcome, 
+  section(class="col-12")
     +user(user.name)
     if feedback
         +feedback(feedback, 'warn')
-    form(method='POST', action='/search')
-      input(type='text',name='query', placeholder='Search an artist...')
-      button(type='submit') Search
-    form(action='/logout', method='post')
-      button(type='submit') Logout
+    +search

@@ -1,14 +1,20 @@
 extends ../layout
 
 include ../feedback/index
+include ../search/index
 
 block content
-    section ARTISTS
-        ul
+    +search
+    section(class="container-fluid center")
+        h3(class="title center d-flex justify-content-center") ARTISTS
+        a(class="btn-sm btn-secondary" href="/home") Go Back
+        ul(class="row d-flex justify-content-center")
             each artist in artists
-                li
-                    a(href=`/search-artist&${artist.id}`)= artist.name
+                li(class="card col-md-4 col-xl-3 col-7 m-1 p-3 pb-4 shadow-sm card-hover")
+                    a(href=`/search-artist&${artist.id}` class='card-title text-center')= artist.name
                             if artist.images[0]
-                                img(src=`${artist.images[0].url}` width="100px")
+                                img(src=`${artist.images[0].url}` class='card-img-top center rounded artist__image' width="100px")
                             else 
-                                img(src=`https://www.google.es/imgres?imgurl=https%3A%2F%2Fwww.bensound.com%2Fbensound-img%2Fhappyrock.jpg&imgrefurl=https%3A%2F%2Fwww.bensound.com%2Froyalty-free-music&docid=6bPI5dSHVd-hDM&tbnid=soAEf4Owr8SbiM%3A&vet=10ahUKEwi23prvsb7gAhW16uAKHfiSCJQQMwhpKAIwAg..i&w=358&h=250&client=opera&bih=627&biw=1366&q=music%20photo&ved=0ahUKEwi23prvsb7gAhW16uAKHfiSCJQQMwhpKAIwAg&iact=mrc&uact=8` width="100px")
+                                img(src=`https://www.bensound.com/bensound-img/happyrock.jpg` class='card-img-top center rounded artist__image' width="100px")
+        if feedback
+            +feedback

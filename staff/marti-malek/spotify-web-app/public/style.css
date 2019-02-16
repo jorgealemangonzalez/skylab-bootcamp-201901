@@ -1,36 +1,66 @@
 .main, .feedback, .landing, .home, .login, .register {
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em;
+  font-family: "Felipa", cursive;
+}
+.main a, .feedback a, .landing a, .home a, .login a, .register a {
+  text-decoration: none;
+  color: black;
+}
+.main a:hover, .feedback a:hover, .landing a:hover, .home a:hover, .login a:hover, .register a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
 }
 
 .main, .feedback, .landing, .home, .login, .register {
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em;
+  font-family: "Felipa", cursive;
+}
+.main a, .feedback a, .landing a, .home a, .login a, .register a {
+  text-decoration: none;
+  color: black;
+}
+.main a:hover, .feedback a:hover, .landing a:hover, .home a:hover, .login a:hover, .register a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
 }
 
 .main, .feedback, .landing, .home, .register, .login {
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em;
+  font-family: "Felipa", cursive;
+}
+.main a, .feedback a, .landing a, .home a, .register a, .login a {
+  text-decoration: none;
+  color: black;
+}
+.main a:hover, .feedback a:hover, .landing a:hover, .home a:hover, .register a:hover, .login a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
 }
 
 .main, .feedback, .landing, .register, .login, .home {
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em;
+  font-family: "Felipa", cursive;
+}
+.main a, .feedback a, .landing a, .register a, .login a, .home a {
+  text-decoration: none;
+  color: black;
+}
+.main a:hover, .feedback a:hover, .landing a:hover, .register a:hover, .login a:hover, .home a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
 }
 
 .main, .feedback, .register, .login, .home, .landing {
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em;
+  font-family: "Felipa", cursive;
+}
+.main a, .feedback a, .register a, .login a, .home a, .landing a {
+  text-decoration: none;
+  color: black;
+}
+.main a:hover, .feedback a:hover, .register a:hover, .login a:hover, .home a:hover, .landing a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
 }
 
 .feedback {
@@ -44,10 +74,63 @@
 }
 
 .main, .register, .login, .home, .landing, .feedback {
-  border: 1px solid black;
-  border-radius: 1em;
-  padding: 1em;
-  margin: 1em;
+  font-family: "Felipa", cursive;
+}
+.main a, .register a, .login a, .home a, .landing a, .feedback a {
+  text-decoration: none;
+  color: black;
+}
+.main a:hover, .register a:hover, .login a:hover, .home a:hover, .landing a:hover, .feedback a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+.register, .login, .home, .landing, .feedback, .main {
+  font-family: "Felipa", cursive;
+}
+.register a, .login a, .home a, .landing a, .feedback a, .main a {
+  text-decoration: none;
+  color: black;
+}
+.register a:hover, .login a:hover, .home a:hover, .landing a:hover, .feedback a:hover, .main a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+.card-hover:hover {
+  border-width: 3px;
+}
+
+.register, .login, .home, .landing, .feedback, .main {
+  font-family: "Felipa", cursive;
+}
+.register a, .login a, .home a, .landing a, .feedback a, .main a {
+  text-decoration: none;
+  color: black;
+}
+.register a:hover, .login a:hover, .home a:hover, .landing a:hover, .feedback a:hover, .main a:hover {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+.img--hover:hover {
+  width: 150%;
+}
+
+.card-album {
+  border-radius: 20% !important;
+}
+
+.album__image {
+  border-radius: 50%;
+}
+
+.card-img-top {
+  border-top-left-radius: 1% !important;
+  border-top-right-radius: 50% !important;
 }
 
 /*# sourceMappingURL=style.css.map */
