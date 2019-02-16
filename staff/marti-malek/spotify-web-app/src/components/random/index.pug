@@ -1,9 +1,10 @@
-extends ../layout
+extends ../landing-layout
 
 include ../feedback/index
 
 block content
     section.not-found
-        h2 NOT FOUND
-        |         Go 
-        a(href='/') Home
+        h2(class="m-3") NOT FOUND
+        p(class="m-3")
+            | Go   
+            a(href='/' style="font-size:1.5rem") Home

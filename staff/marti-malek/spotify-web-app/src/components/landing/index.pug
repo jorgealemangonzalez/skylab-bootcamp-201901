@@ -1,7 +1,7 @@
-extends ../layout
+extends ../landing-layout
 
 block content
-    section.landing
-      a(href='/login') Login
-      |  or 
-      a(href='/register') Register
+  section(class="d-flex justify-content-center" style="font-size:1.5rem")
+    a(href='/login' class="mr-2") Login
+    |  or 
+    a(href='/register' class="ml-2") Register
