@@ -6,6 +6,17 @@
     border-radius: 20% !important
 .album__image
     border-radius: 50%
+    border-top-left-radius: 1%
+    // animation-fill-mode: backwards
+    &:hover
+        animation: turn 5s ease-in
+        border-top-left-radius: 50% !important
 .card-img-top
     border-top-left-radius: 1% !important
     border-top-right-radius: 50% !important
+@keyframes turn
+    from
+        transform: rotate(0deg)
+    to
+        transform: rotate(360deg)
+
