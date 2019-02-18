@@ -1,4 +1,0 @@
-members:
-- robert
-- victor
-- luis

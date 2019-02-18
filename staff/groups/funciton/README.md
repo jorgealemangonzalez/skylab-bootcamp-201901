@@ -1,4 +1,0 @@
-members
-- carlos
-- ury
-- marc

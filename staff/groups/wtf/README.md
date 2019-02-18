@@ -1,3 +1,0 @@
-members:
-- serena
-- alex

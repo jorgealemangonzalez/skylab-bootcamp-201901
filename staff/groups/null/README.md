@@ -1,4 +1,0 @@
-members:
-- clara
-- marti
-- dani

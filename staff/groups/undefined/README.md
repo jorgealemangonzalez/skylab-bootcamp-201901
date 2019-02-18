@@ -1,4 +1,0 @@
-members:
-- tachi
-- jordi
-- nico
