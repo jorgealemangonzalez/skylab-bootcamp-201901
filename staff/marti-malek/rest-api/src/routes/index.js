@@ -14,4 +14,20 @@ module.exports = {
     // notFound: {
     //     get: require('./not-found/get')
     // }
+
+    searchArtists: {
+        get: require('./searchArtists/get')
+    },
+
+    retrieveAlbums: {
+        get: require('./retrieveAlbums/get')
+    },
+
+    retrieveTracks: {
+        get: require('./retrieveTracks/get')
+    },
+
+    retrieveTrack: {
+        get: require('./retrieveTrack/get')
+    }
 }

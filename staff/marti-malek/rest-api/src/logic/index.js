@@ -103,7 +103,7 @@ const logic = {
     },
 
     /**
-     * Toggles a artist from non-favorite to favorite, and viceversa.
+     * Toggles an artist from non-favorite to favorite, and viceversa.
      * 
      * @param {string} artistId - The id of the artist to toggle in favorites.
      */
