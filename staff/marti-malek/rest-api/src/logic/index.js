@@ -2,6 +2,7 @@
 
 const spotifyApi = require('../spotify-api')
 const userApi = require('../user-api')
+const artistComment = require('../data/artist-comment')
 
 /**
  * Abstraction of business logic.
@@ -62,15 +63,15 @@ const logic = {
 
     retrieveUser(userId, token) {
         return userApi.retrieve(userId, token)
-            // .then(({ id, name, surname, username: email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
-            //     id,
-            //     name,
-            //     surname,
-            //     email,
-            //     favoriteArtists,
-            //     favoriteAlbums,
-            //     favoriteTracks
-            // }))
+            .then(({ id, name, surname, username: email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
+                id,
+                name,
+                surname,
+                email,
+                favoriteArtists,
+                favoriteAlbums,
+                favoriteTracks
+            }))
     },
 
     // TODO updateUser and removeUser
@@ -100,10 +101,16 @@ const logic = {
         if (!artistId.trim().length) throw Error('artistId is empty')
 
         return spotifyApi.retrieveArtist(artistId)
+        // TODO once artistComment is already implemented
+        // .then(artist =>
+        //     artistComment.find({ artistId: artist.id })
+        //         .then(comments => artist.comments = comments)
+        //         .then(() => artist)
+        // )
     },
 
     /**
-     * Toggles an artist from non-favorite to favorite, and viceversa.
+     * Toggles a artist from non-favorite to favorite, and viceversa.
      * 
      * @param {string} artistId - The id of the artist to toggle in favorites.
      */
@@ -119,6 +126,26 @@ const logic = {
 
                 return userApi.update(userId, token, { favoriteArtists })
             })
+    },
+
+    addCommentToArtist(userId, token, artistId, text) {
+        // TODO validate userId, token, artistId and text
+
+        const comment = {
+            userId,
+            artistId,
+            text
+        }
+
+        return userApi.retrieve(userId, token)
+            .then(() => artistComment.add(comment))
+            .then(() => comment.id)
+    },
+
+    listCommentsFromArtist(artistId) {
+        // TODO artistId
+
+        return artistComment.find({ artistId })
     },
 
     /**

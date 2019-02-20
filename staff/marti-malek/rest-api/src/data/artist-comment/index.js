@@ -1,70 +1,119 @@
 const uuid = require('uuid/v4')
-const fs = require('fs')
+const fsp = require('fs').promises // WARN need node v10+
 const path = require('path')
-const fsPromises = fs.promises
-const file = path.join(__dirname, 'artist-comments.json')
-
 
 const artistComment = {
     file: 'artist-comments.json',
 
-    add: comment => {
-        comment.id = uuid()
-        
-        return fsPromises.readFile(file, 'utf8')
-            .then(comments => JSON.parse(comments))
-            .then(content => {
-                content.push(comment)
-                return content
-            })
-            .then(content => fsPromises.writeFile(file, JSON.stringify(content))
-        )
-    },
-    retrieve: id => {
-        return fsPromises.readFile(file, 'utf8')
+    __load__(file) {
+        return fsp.readFile(file)
             .then(content => JSON.parse(content))
-            .then(content => {
-                let result = content.find(comment => comment.id === id)
-                if (result) result.date = new Date(result.date)
-                return result? result : null
+    },
+
+    __save__(file, comments) {
+        return fsp.writeFile(file, JSON.stringify(comments, null, 4))
+    },
+
+    add(comment) {
+
+        if (comment === undefined) throw Error('comment should be defined')
+        if (comment.constructor !== Object) throw TypeError(`${comment} should be an object`)
+
+        const file = path.join(__dirname, this.file)
+
+        return this.__load__(file)
+            .then(comments => {
+                comment.id = uuid()
+
+                comments.push(comment)
+
+                return this.__save__(file, comments)
             })
     },
-    update: comment => {
-        return fsPromises.readFile(file, 'utf8')
-            .then(comments => JSON.parse(comments))
-            .then(content => {
-                const index = content.findIndex(elem => elem.id === comment.id)
-                content.splice(index, 1)
-                content.push(comment)
-                return content
+
+    retrieve(id) {
+        if (id === undefined) throw Error('id should be defined')
+        if (typeof id !== 'string') throw TypeError(`${id} should be a string`)
+
+        const file = path.join(__dirname, this.file)
+
+        return this.__load__(file)
+            .then(comments => {
+                const comment = comments.find(comment => comment.id === id)
+
+                if (typeof comment === 'undefined') return null
+
+                comment.date = new Date(comment.date)
+
+                return comment
             })
-            .then(content => fsPromises.writeFile(file, JSON.stringify(content)))
     },
-    delete: id => {
-        return fsPromises.readFile(file, 'utf8')
-            .then(comments => JSON.parse(comments))
-            .then(content => {
-                const index = content.findIndex(elem => elem.id === id)
-                content.splice(index, 1)
-                return content
+
+    update(comment) {
+        
+        if (comment === undefined) throw Error('comment should be defined')
+        if (comment.constructor !== Object) throw TypeError(`${comment} should be an object`)
+
+        const file = path.join(__dirname, this.file)
+
+        return this.__load__(file)
+            .then(comments => {
+                const index = comments.findIndex(_comment => _comment.id === comment.id)
+
+                if (index < 0) throw Error(`comment with id ${comment.id} not found`)
+
+                comments[index] = comment
+
+                return this.__save__(file, comments)
             })
-            .then(content => fsPromises.writeFile(file, JSON.stringify(content)))
     },
-    find: criteria => {
-        return fsPromises.readFile(file, 'utf8')
-            .then(comments => JSON.parse(comments))
-            .then(content => {
-                Object.keys(criteria).forEach(key => {
-                    content = content.filter(comment => comment[key] === criteria[key])
-                    //content.date = new Date(content.date)
+
+    remove(id) {
+
+        if (id === undefined) throw Error('id should be defined')
+        if (typeof id !== 'string') throw TypeError(`${id} should be a string`)
+
+        const file = path.join(__dirname, this.file)
+
+        return this.__load__(file)
+            .then(comments => {
+                const index = comments.findIndex(comment => comment.id === id)
+
+                if (index < 0) throw Error(`comment with id ${id} not found`)
+
+                comments.splice(index, 1)
+
+                return this.__save__(file, comments)
+            })
+    },
+
+    removeAll() {
+        const file = path.join(__dirname, this.file)
+        
+        return this.__save__(file, [])
+    },
+
+    find(criteria) {
+
+        if (criteria === undefined) throw Error('criteria should be defined')
+        if (criteria.constructor !== Object) throw TypeError(`${criteria} should be an object`)
+
+        const file = path.join(__dirname, this.file)
+
+        return this.__load__(file)
+            .then(comments => {
+                const filtered = comments.filter(comment => {
+                    for (const key in criteria)
+                        if (comment[key] !== criteria[key]) return false
+
+                    return true
                 })
-                return content
+
+                filtered.forEach(comment => comment.date = new Date(comment.date))
+
+                return filtered
             })
-            .then(content => {
-                content.forEach(comment => comment.date = new Date(comment.date))
-                return content
-            })
-        }
+    }
 }
 
 module.exports = artistComment
