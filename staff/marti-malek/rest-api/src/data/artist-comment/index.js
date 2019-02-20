@@ -19,7 +19,6 @@ const artistComment = {
         )
     },
     retrieve: id => {
-        debugger
         return fsPromises.readFile(file, 'utf8')
             .then(content => JSON.parse(content))
             .then(content => {
@@ -49,11 +48,17 @@ const artistComment = {
             .then(content => fsPromises.writeFile(file, JSON.stringify(content)))
     },
     find: criteria => {
-        const prop = criteria[Object.keys(criteria)[0]] // property value
-        const prop = Object.keys(criteria)[0] // property name (string)
+        return fsPromises.readFile(file, 'utf8')
+            .then(comments => JSON.parse(comments))
+            .then(content => {
+                Object.keys(criteria).forEach(key => {
+                    content = content.filter(comment => comment[key] === criteria[key])
+                })
+                return content
+            })
 
 
-    }
+        }
 }
 
 module.exports = artistComment

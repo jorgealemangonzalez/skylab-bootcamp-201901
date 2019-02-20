@@ -41,7 +41,7 @@ describe('artist comments data', () => {
                     expect(artistId).toBe(comment.artistId)
                     expect(userId).toBe(comment.userId)
                     expect(text).toBe(comment.text)
-                    //expect(date.toString()).toBe(comment.date.toString())
+                    expect(JSON.stringify(date)).toBe(JSON.stringify(comment.date))
                 })
         )
     })
@@ -68,7 +68,7 @@ describe('artist comments data', () => {
                     expect(artistId).toBe(comment.artistId)
                     expect(userId).toBe(comment.userId)
                     expect(text).toBe(comment.text)
-                    //expect(date.toString()).toBe(comment.date.toString())
+                    expect(JSON.stringify(date)).toBe(JSON.stringify(comment.date))
                 })
         })
     })
@@ -121,11 +121,19 @@ describe('artist comments data', () => {
             date: new Date
         }
 
-        beforeEach(() =>
+        const comment5 = {
+            artistId: comment2.artistId,
+            userId: comment2.userId,
+            text: `comment ${Math.random()}`,
+            date: new Date
+        }
+
+        before(() =>
             artistComment.add(comment)
                 .then(() => artistComment.add(comment2))
                 .then(() => artistComment.add(comment3))
                 .then(() => artistComment.add(comment4))
+                .then(() => artistComment.add(comment5))
         )
 
         it('should succeed on correct criteria by id', () =>
@@ -140,12 +148,40 @@ describe('artist comments data', () => {
                     expect(artistId).toBe(comment2.artistId)
                     expect(userId).toBe(comment2.userId)
                     expect(text).toBe(comment2.text)
-                    expect(date.toString()).toBe(comment2.date.toString())
+                    expect(JSON.stringify(date)).toBe(JSON.stringify(comment2.date))
                 })
         )
 
         it('should succeed on correct criteria by artist id', () =>
             artistComment.find({ artistId: comment2.artistId })
+                .then(comments => {
+                    expect(comments).toBeDefined()
+                    expect(comments.length).toBe(3)
+
+                    const [_comment, _comment2, _comment3] = comments
+
+                    expect(_comment.id).toBe(comment2.id)
+                    expect(_comment.artistId).toBe(comment2.artistId)
+                    expect(_comment.userId).toBe(comment2.userId)
+                    expect(_comment.text).toBe(comment2.text)
+                    expect(JSON.stringify(_comment.date)).toBe(JSON.stringify(comment2.date))
+
+                    expect(_comment2.id).toBe(comment4.id)
+                    expect(_comment2.artistId).toBe(comment4.artistId)
+                    expect(_comment2.userId).toBe(comment4.userId)
+                    expect(_comment2.text).toBe(comment4.text)
+                    expect(JSON.stringify(_comment2.date)).toBe(JSON.stringify(comment4.date))
+
+                    expect(_comment3.id).toBe(comment5.id)
+                    expect(_comment3.artistId).toBe(comment5.artistId)
+                    expect(_comment3.userId).toBe(comment5.userId)
+                    expect(_comment3.text).toBe(comment5.text)
+                    expect(JSON.stringify(_comment3.date)).toBe(JSON.stringify(comment5.date))
+                })
+        )
+
+        it('should succeed on correct criteria by artist id', () =>
+            artistComment.find({ artistId: comment2.artistId, userId: comment2.userId })
                 .then(comments => {
                     expect(comments).toBeDefined()
                     expect(comments.length).toBe(2)
@@ -156,13 +192,13 @@ describe('artist comments data', () => {
                     expect(_comment.artistId).toBe(comment2.artistId)
                     expect(_comment.userId).toBe(comment2.userId)
                     expect(_comment.text).toBe(comment2.text)
-                    expect(_comment.date.toString()).toBe(comment2.date.toString())
+                    //expect(_comment.date.toString()).toBe(comment2.date.toString())
 
-                    expect(_comment2.id).toBe(comment4.id)
-                    expect(_comment2.artistId).toBe(comment4.artistId)
-                    expect(_comment2.userId).toBe(comment4.userId)
-                    expect(_comment2.text).toBe(comment4.text)
-                    expect(_comment2.date.toString()).toBe(comment4.date.toString())
+                    expect(_comment2.id).toBe(comment5.id)
+                    expect(_comment2.artistId).toBe(comment5.artistId)
+                    expect(_comment2.userId).toBe(comment5.userId)
+                    expect(_comment2.text).toBe(comment5.text)
+                    // expect(_comment2.date.toString()).toBe(comment5.date.toString())
                 })
         )
     })
