@@ -6,6 +6,8 @@ const file = path.join(__dirname, 'artist-comments.json')
 
 
 const artistComment = {
+    file: 'artist-comments.json',
+
     add: comment => {
         comment.id = uuid()
         
@@ -23,6 +25,7 @@ const artistComment = {
             .then(content => JSON.parse(content))
             .then(content => {
                 let result = content.find(comment => comment.id === id)
+                if (result) result.date = new Date(result.date)
                 return result? result : null
             })
     },
@@ -53,11 +56,14 @@ const artistComment = {
             .then(content => {
                 Object.keys(criteria).forEach(key => {
                     content = content.filter(comment => comment[key] === criteria[key])
+                    //content.date = new Date(content.date)
                 })
                 return content
             })
-
-
+            .then(content => {
+                content.forEach(comment => comment.date = new Date(comment.date))
+                return content
+            })
         }
 }
 
