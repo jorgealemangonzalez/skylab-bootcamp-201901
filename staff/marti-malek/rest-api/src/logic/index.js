@@ -115,6 +115,11 @@ const logic = {
      * @param {string} artistId - The id of the artist to toggle in favorites.
      */
     toggleFavoriteArtist(userId, token, artistId) {
+
+        if (typeof userId !== 'string') throw TypeError(`userId should be a string`)
+        if (typeof token !== 'string') throw TypeError(`token should be a string`)
+        if (typeof artistId !== 'string') throw TypeError(`artistId should be a string`)
+
         return userApi.retrieve(userId, token)
             .then(user => {
                 const { favoriteArtists = [] } = user
@@ -134,7 +139,8 @@ const logic = {
         const comment = {
             userId,
             artistId,
-            text
+            text,
+            date: new Date
         }
 
         return userApi.retrieve(userId, token)
