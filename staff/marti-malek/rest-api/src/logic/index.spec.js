@@ -1,18 +1,37 @@
 require('dotenv').config()
 require('isomorphic-fetch')
 
+const { MongoClient } = require('mongodb')
 const expect = require('expect')
 const userApi = require('../user-api')
 const spotifyApi = require('../spotify-api')
-const artistComment = require('../data/artist-comment')
+const artistComments = require('../data/artist-comments')
 const logic = require('.')
+const users = require('../data/users')
+const jwt = require('jsonwebtoken')
 
-const { env: { SPOTIFY_API_TOKEN } } = process
+const { env: { DB_URL, SPOTIFY_API_TOKEN, SECRET_JSON } } = process
 
 spotifyApi.token = SPOTIFY_API_TOKEN
 
 describe('logic', () => {
-    beforeEach(() => artistComment.removeAll())
+    let client
+
+    before(() =>
+        MongoClient.connect(DB_URL, { useNewUrlParser: true })
+            .then(_client => {
+                client = _client
+
+                users.collection = client.db().collection('users')
+            })
+    )
+
+    beforeEach(() =>
+        Promise.all([
+            artistComments.removeAll(),
+            users.collection.deleteMany()
+        ])
+    )
 
     describe('register user', () => {
         const name = 'Manuel'
@@ -453,7 +472,8 @@ describe('logic', () => {
         beforeEach(() => {
             password = '123'
             email = `manuelbarzi@mail.com-${Math.random()}`
-            return userApi.register(name, surname, email, password)
+            // return userApi.register(name, surname, email, password)
+            return users.add({name, surname, email, password})
         })
 
         it('should succeed on correct credentials', () =>
@@ -461,6 +481,7 @@ describe('logic', () => {
                 .then(({ id, token }) => {
                     expect(id).toBeDefined()
                     expect(token).toBeDefined()
+                    expect(jwt.verify(token, SECRET_JSON)).toBeTruthy()
                 })
         )
         it('should fail on empty email', function () {
@@ -575,9 +596,15 @@ describe('logic', () => {
         let _id, _token
 
         beforeEach(() =>
-            userApi.register(name, surname, email, password)
-                .then(() => userApi.authenticate(email, password))
-                .then(({ id, token }) => {
+            // userApi.register(name, surname, email, password)
+            //     .then(() => userApi.authenticate(email, password))
+            //     .then(({ id, token }) => {
+            //         _id = id
+            //         _token = token
+            //     })
+            users.add({name, surname, email, password})
+                .then(() => users.collection.findOne({ email: email }))
+                .then(({id, token}) => {
                     _id = id
                     _token = token
                 })
@@ -597,7 +624,7 @@ describe('logic', () => {
     // TODO updateUser and removeUser
 
     describe('search artists', () => {
-        it('should succeed on mathing query', () => {
+        it('should succeed on matching query', () => {
             const query = 'madonna'
 
             return logic.searchArtists(query)
@@ -663,7 +690,7 @@ describe('logic', () => {
     })
 
     describe('retrieve artist', () => {
-        it('should succeed on mathing query', () => {
+        it('should succeed on matching query', () => {
             const artistId = '6tbjWDEIzxoDsBA1FuhfPW' // madonna
 
             return logic.retrieveArtist(artistId)
@@ -766,7 +793,7 @@ describe('logic', () => {
                 .then(id => {
                     expect(id).toBeDefined()
 
-                    return artistComment.retrieve(id)
+                    return artistComments.retrieve(id)
                         .then(_comment => {
                             expect(_comment.id).toBe(id)
                             expect(_comment.userId).toBe(_id)
@@ -796,9 +823,9 @@ describe('logic', () => {
                     _id = id
                     _token = token
                 })
-                .then(() => artistComment.add(comment = { userId: _id, artistId, text }))
-                .then(() => artistComment.add(comment2 = { userId: _id, artistId, text: text2 }))
-                .then(() => artistComment.add(comment3 = { userId: _id, artistId, text: text3 }))
+                .then(() => artistComments.add(comment = { userId: _id, artistId, text }))
+                .then(() => artistComments.add(comment2 = { userId: _id, artistId, text: text2 }))
+                .then(() => artistComments.add(comment3 = { userId: _id, artistId, text: text3 }))
         )
 
         it('should succeed on correct data', () =>
@@ -823,7 +850,7 @@ describe('logic', () => {
     })
 
     describe('retrieve albums', () => {
-        it('should succeed on mathing query', () => {
+        it('should succeed on matching query', () => {
             const artistId = '6tbjWDEIzxoDsBA1FuhfPW' // madonna
 
             return logic.retrieveAlbums(artistId)
@@ -887,7 +914,7 @@ describe('logic', () => {
     })
 
     describe('retrieve album', () => {
-        it('should succeed on mathing query', () => {
+        it('should succeed on matching query', () => {
             const albumId = '4hBA7VgOSxsWOf2N9dJv2X' // Rebel Heart Tour (Live)
 
             return logic.retrieveAlbum(albumId)
@@ -1083,5 +1110,11 @@ describe('logic', () => {
         )
     })
 
-    after(() => artistComment.removeAll())
+    after(() =>
+        Promise.all([
+            artistComments.removeAll(),
+            users.collection.deleteMany()
+                .then(() => client.close())
+        ])
+    )
 })
