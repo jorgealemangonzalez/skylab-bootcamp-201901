@@ -6,6 +6,7 @@ const spotifyApi = require('../spotify-api')
 const users = require('../data/users')
 const artistComments = require('../data/artist-comments')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const { env: { SECRET_JSON } } = process
 
 /**
@@ -47,7 +48,13 @@ const logic = {
 
         if (password !== passwordConfirmation) throw Error('passwords do not match')
 
-        return users.add({ name, surname, email, password })
+        return users.findByEmail(email)
+            .then(user => {
+                if (user) throw Error(`user with email ${email} already exists`)
+
+                return bcrypt.hash(password, 10)
+            }) 
+            .then(hash => users.add({ name, surname, email, password: hash }))
     },
 
     /**
@@ -71,13 +78,18 @@ const logic = {
         return users.findByEmail(email)
             .then(user => {
                 if (!user) throw Error(`user with email ${email} not found`)
-                if (user.password !== password) throw Error('wrong credentials')
-                const userId = user.id
-                const secret = SECRET_JSON
-                const token = jwt.sign({
-                    data: userId
-                }, secret, { expiresIn: '48h' })
-                return { id: userId, token }
+                return bcrypt.compare(password, user.password)
+                    .then(match => {
+                        debugger
+                        if (!match) throw Error('Error in credentials')
+                        // if (user.password !== password) throw Error('wrong credentials')
+                        const userId = user.id
+                        const secret = SECRET_JSON
+                        const token = jwt.sign({
+                            data: userId
+                        }, secret, { expiresIn: '48h' })
+                        return { id: userId, token }
+                    })
             })
     },
     /**

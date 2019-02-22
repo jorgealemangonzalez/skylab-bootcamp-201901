@@ -6,6 +6,7 @@ const expect = require('expect')
 const spotifyApi = require('../spotify-api')
 const artistComments = require('../data/artist-comments')
 const logic = require('.')
+const bcrypt = require('bcrypt')
 const users = require('../data/users')
 const jwt = require('jsonwebtoken')
 
@@ -471,7 +472,13 @@ describe('logic', () => {
         beforeEach(() => {
             password = '123'
             email = `manuelbarzi@mail.com-${Math.random()}`
-            return users.add({ name, surname, email, password })
+            return users.findByEmail(email)
+            .then(user => {
+                if (user) throw Error(`user with email ${email} already exists`)
+
+                return bcrypt.hash(password, 10)
+            }) 
+            .then(hash => users.add({ name, surname, email, password: hash }))
         })
 
         it('should succeed on correct credentials', () =>
