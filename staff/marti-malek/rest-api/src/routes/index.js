@@ -11,7 +11,17 @@ module.exports = {
 
     listCommentsFromArtist: require('./list-comments-from-artist'),
 
-    // TODO other route handlers
+    updateUser: require('./update-user'),
+
+    retrieveArtist: require('./retrieve-artist'),
+
+    toggleFavouriteArtist: require('./toggle-favourite-artist'),
+
+    retrieveAlbum: require('./retrieve-album'),
+
+    retrieveTracks: require('./retrieve-tracks'),
+
+    retrieveTrack: require('./retrieve-track'),
 
     notFound: require('./not-found')
 }

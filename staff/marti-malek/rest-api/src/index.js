@@ -6,7 +6,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const spotifyApi = require('./spotify-api')
 
-const { registerUser, authenticateUser, retrieveUser, searchArtists, notFound } = require('./routes')
+const { registerUser, authenticateUser, retrieveUser, searchArtists, notFound, updateUser, retrieveArtist, addCommentToArtist, listCommentsFromArtist, toggleFavouriteArtist, toggleFavouriteAlbum, retrieveAlbum, retrieveTrack } = require('./routes')
 
 const { env: { PORT, SPOTIFY_API_TOKEN }, argv: [, , port = PORT || 8080] } = process
 
@@ -26,19 +26,25 @@ router.get('/user/:id', retrieveUser)
 
 router.get('/artists', searchArtists)
 
-// TODO add comment to artist
-// router.post('/artist/:id/comment', addCommentToArtist)
+router.post('/artist/:id/comment', addCommentToArtist)
 
-// TODO list comments from artist
-// router.get('/artist/:id/comment', listCommentsFromArtist)
+router.get('/artist/:id/comment', listCommentsFromArtist)
 
-// router.get('/artist/:id', retrieveArtist)
+router.get('/artist/:id', retrieveArtist)
 
-// router.get('/album/:id', retrieveAlbum)
+router.get('/album/:id', retrieveAlbum)
 
-// router.get('/track/:id', retrieveTrack)
+// router.get('/tracks/:id', retrieveTracks)
 
-// app.get('*', notFound)
+router.get('/track/:id', retrieveTrack)
+
+router.post('/user/profile', updateUser)
+
+router.post('/artist/:id', toggleFavouriteArtist)
+
+// router.post('/album/:id', toggleFavouriteAlbum)
+
+app.get('*', notFound)
 
 app.use('/api', router)
 
