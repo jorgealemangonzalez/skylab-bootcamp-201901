@@ -6,7 +6,7 @@ const fsp = require('fs').promises
 const artistComment = require('.')
 const uuid = require('uuid')
 
-false && describe('artist comments data', () => {
+describe('artist comments data', () => {
     const file = path.join(__dirname, artistComment.file)
 
     beforeEach(() => fsp.writeFile(file, JSON.stringify([])))

@@ -1,9 +1,8 @@
 require('dotenv').config()
 require('isomorphic-fetch')
 
-const { MongoClient, ObjectId } = require('mongodb')
+const { MongoClient } = require('mongodb')
 const expect = require('expect')
-const userApi = require('../user-api')
 const spotifyApi = require('../spotify-api')
 const artistComments = require('../data/artist-comments')
 const logic = require('.')
@@ -244,7 +243,7 @@ describe('logic', () => {
         it('should fail on function email', () => {
             const name = 'Manuel'
             const surname = 'Barzi'
-            const email = function a() {}
+            const email = function a() { }
             const password = '123'
 
             expect(() => {
@@ -382,7 +381,7 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on boolean passwordConfirm', () => {
             const name = 'Manuel'
@@ -393,7 +392,7 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on undefined passwordConfirm', () => {
             const name = 'Manuel'
@@ -404,7 +403,7 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on null passwordConfirm', () => {
             const name = 'Manuel'
@@ -415,7 +414,7 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on number passwordConfirm', () => {
             const name = 'Manuel'
@@ -426,7 +425,7 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on error passwordConfirm', () => {
             const name = 'Manuel'
@@ -437,7 +436,7 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on date passwordConfirm', () => {
             const name = 'Manuel'
@@ -448,18 +447,18 @@ describe('logic', () => {
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
         it('should fail on function passwordConfirm', () => {
             const name = 'Manuel'
             const surname = 'Barzi'
             const email = 'manuelbarzi@mail.com'
             const password = '123'
-            const passwordConfirm = function a() {}
+            const passwordConfirm = function a() { }
 
             expect(() => {
                 logic.registerUser(name, surname, email, password, passwordConfirm)
-            }).toThrow(Error(passwordConfirm+ ' is not a string'))
+            }).toThrow(Error(passwordConfirm + ' is not a string'))
         })
     })
 
@@ -468,12 +467,11 @@ describe('logic', () => {
         const surname = 'Barzi'
         let email
         let password
-        
+
         beforeEach(() => {
             password = '123'
             email = `manuelbarzi@mail.com-${Math.random()}`
-            // return userApi.register(name, surname, email, password)
-            return users.add({name, surname, email, password})
+            return users.add({ name, surname, email, password })
         })
 
         it('should succeed on correct credentials', () =>
@@ -520,7 +518,7 @@ describe('logic', () => {
             expect(() => logic.authenticateUser(email, password)).toThrowError(`${email} is not a string`)
         })
         it('should fail on function email', function () {
-            const email = function a() {}
+            const email = function a() { }
 
             expect(() => logic.authenticateUser(email, password)).toThrowError(`${email} is not a string`)
         })
@@ -534,7 +532,6 @@ describe('logic', () => {
 
             expect(() => logic.authenticateUser(email, password)).toThrowError(`${email} is not a string`)
         })
-        /*----*/
         it('should fail on empty password', function () {
             password = ''
 
@@ -571,7 +568,7 @@ describe('logic', () => {
             expect(() => logic.authenticateUser(email, password)).toThrowError(`${password} is not a string`)
         })
         it('should fail on function password', function () {
-            const password = function a() {}
+            const password = function a() { }
 
             expect(() => logic.authenticateUser(email, password)).toThrowError(`${password} is not a string`)
         })
@@ -592,22 +589,15 @@ describe('logic', () => {
         const surname = 'Barzi'
         let email
         let password
-        const passwordConfirm = password
         let _id, _token
 
         beforeEach(() => {
-            // userApi.register(name, surname, email, password)
-            //     .then(() => userApi.authenticate(email, password))
-            //     .then(({ id, token }) => {
-            //         _id = id
-            //         _token = token
-            //     })
             email = `manuelbarzi@mail.com-${Math.random()}`
             password = '123'
-            return users.add({name, surname, email, password})
+            return users.add({ name, surname, email, password })
                 .then(() => users.findByEmail(email))
                 .then((user) => {
-                    _id = user._id.toString()
+                    _id = user.id.toString()
                     _token = jwt.sign({
                         data: _id
                     }, SECRET_JSON, { expiresIn: '48h' })
@@ -615,7 +605,7 @@ describe('logic', () => {
                 .catch((err) => {
                     if (err) throw err
                 })
-            })
+        })
 
         it('should succeed on correct credentials', () =>
             logic.retrieveUser(_id, _token)
@@ -626,6 +616,107 @@ describe('logic', () => {
                     expect(user.email).toBe(email)
                 })
         )
+        it('should fail on empty _id', function () {
+            _id = ''
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError('userId cannot be empty')
+        })
+        it('should fail on array _id', function () {
+            _id = []
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on boolean _id', function () {
+            const _id = true
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on number _id', function () {
+            const _id = 4
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on object _id', function () {
+            const _id = {}
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on null _id', function () {
+            const _id = null
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on undefined _id', function () {
+            const _id = undefined
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on function _id', function () {
+            const _id = function a() { }
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on date _id', function () {
+            const _id = new Date
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on error _id', function () {
+            const _id = Error
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on empty _token', function () {
+            _token = ''
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError('token cannot be empty')
+        })
+        it('should fail on array _token', function () {
+            _token = []
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on boolean _token', function () {
+            const _token = true
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on number _token', function () {
+            const _token = 4
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on object _token', function () {
+            const _token = {}
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on null _token', function () {
+            const _token = null
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on undefined _token', function () {
+            const _token = undefined
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on function _token', function () {
+            const _token = function a() { }
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on date _token', function () {
+            const _token = new Date
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on error _token', function () {
+            const _token = Error
+
+            expect(() => logic.retrieveUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+
     })
 
     describe('update user', () => {
@@ -634,14 +725,16 @@ describe('logic', () => {
         let email
         let password
         let _id, _token
+        let data
 
         beforeEach(() => {
+            data = { name: 'Manuel2' }
             email = `manuelbarzi@mail.com-${Math.random()}`
             password = '123'
-            return users.add({name, surname, email, password})
+            return users.add({ name, surname, email, password })
                 .then(() => users.findByEmail(email))
                 .then((user) => {
-                    _id = user._id.toString()
+                    _id = user.id.toString()
                     _token = jwt.sign({
                         data: _id
                     }, SECRET_JSON, { expiresIn: '48h' })
@@ -649,20 +742,163 @@ describe('logic', () => {
                 .catch((err) => {
                     if (err) throw err
                 })
-            })
+        })
 
         it('should succeed on correct credentials', () => {
-            let data = {name: 'Manuel2'}
             return logic.updateUser(_id, _token, data)
                 .then(() => users.findByUserId(_id))
                 .then(user => {
-                    expect(user._id).toEqual(ObjectId(_id))
+                    expect(user.id).toEqual(_id)
                     expect(user.name).toBe(data.name)
                     expect(user.surname).toBe(surname)
                     expect(user.email).toBe(email)
                 })
-            })
-        // TODO more unit test cases
+        })
+        it('should fail on empty _id', function () {
+            _id = ''
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError('userId cannot be empty')
+        })
+        it('should fail on array _id', function () {
+            _id = []
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on boolean _id', function () {
+            const _id = true
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on number _id', function () {
+            const _id = 4
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on object _id', function () {
+            const _id = {}
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on null _id', function () {
+            const _id = null
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on undefined _id', function () {
+            const _id = undefined
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on function _id', function () {
+            const _id = function a() { }
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on date _id', function () {
+            const _id = new Date
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on error _id', function () {
+            const _id = Error
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on empty _token', function () {
+            _token = ''
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError('token cannot be empty')
+        })
+        it('should fail on array _token', function () {
+            _token = []
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on boolean _token', function () {
+            const _token = true
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on number _token', function () {
+            const _token = 4
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on object _token', function () {
+            const _token = {}
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on null _token', function () {
+            const _token = null
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on undefined _token', function () {
+            const _token = undefined
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on function _token', function () {
+            const _token = function a() { }
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on date _token', function () {
+            const _token = new Date
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on error _token', function () {
+            const _token = Error
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on array data', function () {
+            data = []
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
+        it('should fail on boolean data', function () {
+            const data = true
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
+        it('should fail on number data', function () {
+            const data = 4
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
+        it('should fail on object data', function () {
+            const data = 'string'
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
+        it('should fail on null data', function () {
+            const data = null
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`data should be defined`)
+        })
+        it('should fail on undefined data', function () {
+            const data = undefined
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`data should be defined`)
+        })
+        it('should fail on function data', function () {
+            const data = function a() { }
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
+        it('should fail on date data', function () {
+            const data = new Date
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
+        it('should fail on error data', function () {
+            const data = Error
+
+            expect(() => logic.updateUser(_id, _token, data)).toThrowError(`${data} is not an object`)
+        })
     })
 
     describe('remove user', () => {
@@ -675,10 +911,10 @@ describe('logic', () => {
         beforeEach(() => {
             email = `manuelbarzi@mail.com-${Math.random()}`
             password = '123'
-            return users.add({name, surname, email, password})
+            return users.add({ name, surname, email, password })
                 .then(() => users.findByEmail(email))
                 .then((user) => {
-                    _id = user._id.toString()
+                    _id = user.id.toString()
                     _token = jwt.sign({
                         data: _id
                     }, SECRET_JSON, { expiresIn: '48h' })
@@ -686,7 +922,7 @@ describe('logic', () => {
                 .catch((err) => {
                     if (err) throw err
                 })
-            })
+        })
 
         it('should succeed on correct credentials', () => {
             return logic.removeUser(_id, _token)
@@ -697,11 +933,108 @@ describe('logic', () => {
                 .then(user => {
                     expect(user).toBeNull()
                 })
-            })
-        // TODO more unit test cases
-    })
+        })
+        it('should fail on empty _id', function () {
+            _id = ''
 
-    // TODO updateUser and removeUser
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`userId cannot be empty`)
+        })
+        it('should fail on array _id', function () {
+            _id = []
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on boolean _id', function () {
+            const _id = true
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on number _id', function () {
+            const _id = 4
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail o string _id', function () {
+            const _id = {}
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on null _id', function () {
+            const _id = null
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on undefined _id', function () {
+            const _id = undefined
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on function _id', function () {
+            const _id = function a() { }
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on date _id', function () {
+            const _id = new Date
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on error _id', function () {
+            const _id = Error
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_id} is not a string`)
+        })
+        it('should fail on empty _token', function () {
+            _token = ''
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`token cannot be empty`)
+        })
+        it('should fail on array _token', function () {
+            _token = []
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on boolean _token', function () {
+            const _token = true
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on number _token', function () {
+            const _token = 4
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail o string _token', function () {
+            const _token = {}
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on null _token', function () {
+            const _token = null
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on undefined _token', function () {
+            const _token = undefined
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on function _token', function () {
+            const _token = function a() { }
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on date _token', function () {
+            const _token = new Date
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+        it('should fail on error _token', function () {
+            const _token = Error
+
+            expect(() => logic.removeUser(_id, _token)).toThrowError(`${_token} is not a string`)
+        })
+    })
 
     describe('search artists', () => {
         it('should succeed on matching query', () => {
@@ -753,7 +1086,7 @@ describe('logic', () => {
             expect(() => logic.searchArtists(query)).toThrowError(`${query} is not a string`)
         })
         it('should fail on function query', function () {
-            const query = function a() {}
+            const query = function a() { }
 
             expect(() => logic.searchArtists(query)).toThrowError(`${query} is not a string`)
         })
@@ -770,25 +1103,100 @@ describe('logic', () => {
     })
 
     describe('retrieve artist', () => {
-        it('should succeed on matching query', () => {
-            const artistId = '6tbjWDEIzxoDsBA1FuhfPW' // madonna
 
-            return logic.retrieveArtist(artistId)
-                .then(({ id, name }) => {
-                    expect(id).toBe(artistId)
-                    expect(name).toBe('Madonna')
+        
+        const comment = {
+            artistId : '6tbjWDEIzxoDsBA1FuhfPW',
+            text: 'Such a cool song',
+            date: new Date
+        }
+        const name = 'Manuel'
+        const surname = 'Barzi'
+        let email
+        let password
+
+        beforeEach(() => {
+            email = `manuelbarzi@mail.com-${Math.random()}`
+            password = '123'
+            return users.add({ name, surname, email, password })
+                .then(() => users.findByEmail(email))
+                .then(user => {
+                    comment.userId = user.id.toString()
+                    _id = user.id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
+                })
+                .catch((err) => {
+                    if (err) throw err
+                })
+                .then(() => {
+                    artistComments.add(comment)
                 })
         })
 
-        it('should fail on empty artistId', function () {
+        it('should succeed on matching artistId', () => {
+            const artistId = '6tbjWDEIzxoDsBA1FuhfPW'
+
+            return logic.retrieveArtist(artistId)
+                .then(({id, name, comments}) => {
+                    debugger
+                    expect(id).toBe(artistId)
+                    expect(name).toBe('Madonna')
+                    expect(comments).toBeDefined()
+                    expect(comments[0].text).toEqual(comment.text)
+                })
+        })
+
+        it('should fail on empty artistId', () => {
             const artistId = ''
 
             expect(() => logic.retrieveArtist(artistId)).toThrowError('artistId is empty')
         })
+        it('should fail on array artistId', function () {
+            const artistId = []
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on boolean artistId', function () {
+            const artistId = true
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on number artistId', function () {
+            const artistId = 4
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
         it('should fail on object artistId', function () {
             const artistId = {}
 
-            expect(() => logic.retrieveArtist(artistId)).toThrow(Error(`${artistId} is not a string`))
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on null artistId', function () {
+            const artistId = null
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on undefined artistId', function () {
+            const artistId = undefined
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on function artistId', function () {
+            const artistId = function a() { }
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on date artistId', function () {
+            const artistId = new Date
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
+        })
+        it('should fail on error artistId', function () {
+            const artistId = Error
+
+            expect(() => logic.retrieveArtist(artistId)).toThrowError(`${artistId} is not a string`)
         })
     })
 
@@ -802,10 +1210,10 @@ describe('logic', () => {
 
         beforeEach(() => {
             email = `manuelbarzi@mail.com-${Math.random()}`
-            return users.add({name, surname, email, password})
+            return users.add({ name, surname, email, password })
                 .then(() => users.findByEmail(email))
                 .then((user) => {
-                    _id = user._id.toString()
+                    _id = user.id.toString()
                     _token = jwt.sign({
                         data: _id
                     }, SECRET_JSON, { expiresIn: '48h' })
@@ -813,14 +1221,13 @@ describe('logic', () => {
                 .catch((err) => {
                     if (err) throw err
                 })
-            })
+        })
 
         it('should succeed on correct data', () =>
             logic.toggleFavoriteArtist(_id, _token, artistId)
                 .then(() => users.findByUserId(_id))
                 .then(user => {
-                    debugger
-                    expect(user._id).toEqual(ObjectId(_id))
+                    expect(user.id).toEqual(_id)
                     expect(user.name).toBe(name)
                     expect(user.surname).toBe(surname)
                     expect(user.email).toBe(email)
@@ -833,7 +1240,7 @@ describe('logic', () => {
                 })
                 .then(() => users.findByUserId(_id))
                 .then(user => {
-                    expect(user._id).toEqual(ObjectId(_id))
+                    expect(user.id).toEqual(_id)
                     expect(user.name).toBe(name)
                     expect(user.surname).toBe(surname)
                     expect(user.email).toBe(email)
@@ -842,17 +1249,155 @@ describe('logic', () => {
                     expect(user.favoriteArtists.length).toBe(0)
                 })
         )
-        it('should fail object userId instead of string', () => {
-            const userId = {}
-            expect(() => logic.toggleFavoriteArtist(userId, _token, artistId)).toThrow(TypeError('userId should be a string'))
+        it('should fail on empty _id', () => {
+            const _id = ''
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError('userId cannot be empty')
         })
-        it('should fail object userId instead of string', () => {
-            const token = {}
-            expect(() => logic.toggleFavoriteArtist(_id, token, artistId)).toThrow(TypeError(`${token} is not a string`))
+        it('should fail on array _id', function () {
+            const _id = []
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
         })
-        it('should fail object userId instead of string', () => {
-            const artist_Id = {}
-            expect(() => logic.toggleFavoriteArtist(_id, _token, artist_Id)).toThrow(TypeError('artistId should be a string'))
+        it('should fail on boolean _id', function () {
+            const _id = true
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on number _id', function () {
+            const _id = 4
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on object _id', function () {
+            const _id = {}
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on null _id', function () {
+            const _id = null
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on undefined _id', function () {
+            const _id = undefined
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on function _id', function () {
+            const _id = function a() { }
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on date _id', function () {
+            const _id = new Date
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on error _id', function () {
+            const _id = Error
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_id} should be a string`)
+        })
+        it('should fail on empty _token', () => {
+            const _token = ''
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError('token cannot be empty')
+        })
+        it('should fail on array _token', function () {
+            const _token = []
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on boolean _token', function () {
+            const _token = true
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on number _token', function () {
+            const _token = 4
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on object _token', function () {
+            const _token = {}
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on null _token', function () {
+            const _token = null
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on undefined _token', function () {
+            const _token = undefined
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on function _token', function () {
+            const _token = function a() { }
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on date _token', function () {
+            const _token = new Date
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on error _token', function () {
+            const _token = Error
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${_token} should be a string`)
+        })
+        it('should fail on empty artistId', () => {
+            const artistId = ''
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError('artistId cannot be empty')
+        })
+        it('should fail on array artistId', function () {
+            const artistId = []
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on boolean artistId', function () {
+            const artistId = true
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on number artistId', function () {
+            const artistId = 4
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on object artistId', function () {
+            const artistId = {}
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on null artistId', function () {
+            const artistId = null
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on undefined artistId', function () {
+            const artistId = undefined
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on function artistId', function () {
+            const artistId = function a() { }
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on date artistId', function () {
+            const artistId = new Date
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
+        })
+        it('should fail on error artistId', function () {
+            const artistId = Error
+
+            expect(() => logic.toggleFavoriteArtist(_id, _token, artistId)).toThrowError(`${artistId} should be a string`)
         })
     })
 
@@ -865,14 +1410,21 @@ describe('logic', () => {
         const comment = `comment ${Math.random()}`
         let _id, _token
 
-        beforeEach(() =>
-            userApi.register(name, surname, email, password)
-                .then(() => userApi.authenticate(email, password))
-                .then(({ id, token }) => {
-                    _id = id
-                    _token = token
+        beforeEach(() => {
+            return users.add({ name, surname, email, password })
+                .then(() => users.findByEmail(email))
+                .then((user) => {
+                    _id = user.id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
                 })
-        )
+                .catch((err) => {
+                    if (err) throw err
+                })
+        })
+
+
 
         it('should succeed on correct data', () =>
             logic.addCommentToArtist(_id, _token, artistId, comment)
@@ -902,17 +1454,23 @@ describe('logic', () => {
         let comment, comment2, comment3
         let _id, _token
 
-        beforeEach(() =>
-            userApi.register(name, surname, email, password)
-                .then(() => userApi.authenticate(email, password))
-                .then(({ id, token }) => {
-                    _id = id
-                    _token = token
+        beforeEach(() => {
+            users.add({ name, surname, email, password })
+            return users.add({ name, surname, email, password })
+                .then(() => users.findByEmail(email))
+                .then((user) => {
+                    _id = user.id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
+                })
+                .catch((err) => {
+                    if (err) throw err
                 })
                 .then(() => artistComments.add(comment = { userId: _id, artistId, text }))
                 .then(() => artistComments.add(comment2 = { userId: _id, artistId, text: text2 }))
                 .then(() => artistComments.add(comment3 = { userId: _id, artistId, text: text3 }))
-        )
+        })
 
         it('should succeed on correct data', () =>
             logic.listCommentsFromArtist(artistId)
@@ -983,7 +1541,7 @@ describe('logic', () => {
             expect(() => logic.retrieveAlbums(artistId)).toThrowError(`${artistId} is not a string`)
         })
         it('should fail on function artistId', function () {
-            const artistId = function a() {}
+            const artistId = function a() { }
 
             expect(() => logic.retrieveAlbums(artistId)).toThrowError(`${artistId} is not a string`)
         })
@@ -1046,7 +1604,7 @@ describe('logic', () => {
             expect(() => logic.retrieveAlbum(albumId)).toThrowError(`${albumId} is not a string`)
         })
         it('should fail on function albumId', function () {
-            const albumId = function a() {}
+            const albumId = function a() { }
 
             expect(() => logic.retrieveAlbum(albumId)).toThrowError(`${albumId} is not a string`)
         })
