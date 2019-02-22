@@ -85,8 +85,8 @@ describe('user', () => {
             users.collection.insertOne(_user)
         })
 
-        it('should succeed on correct data', () =>
-            users.findByEmail(_user.email)
+        it('should succeed on correct data', () => {
+            return users.findByEmail(_user.email)
                 .then(user => {
                     expect(user).to.exist
                     expect(user.name).to.exist
@@ -98,7 +98,35 @@ describe('user', () => {
                     expect(user.password).to.exist
                     expect(user.password).to.be.a('string')
                 })
-        )
+        })
+        it('should fail on error email', () => {
+            const testEmail = undefined
+            expect(() => users.findByEmail(testEmail)).to.throw(Error, `email should be defined`)
+        })
+        it('should fail on null email', () => {
+            const testEmail = null
+            expect(() => users.findByEmail(testEmail)).to.throw(Error, `email should be defined`)
+        })
+        it('should fail on boolean email', () => {
+            const testEmail = true
+            expect(() => users.findByEmail(testEmail)).to.throw(TypeError, `${testEmail} should be a string`)
+        })
+        it('should fail on object email', () => {
+            const testEmail = {}
+            expect(() => users.findByEmail(testEmail)).to.throw(TypeError, `${testEmail} should be a string`)
+        })
+        it('should fail on number email', () => {
+            const testEmail = 4
+            expect(() => users.findByEmail(testEmail)).to.throw(TypeError, `${testEmail} should be a string`)
+        })
+        it('should fail on date email', () => {
+            const testEmail = Date
+            expect(() => users.findByEmail(testEmail)).to.throw(TypeError, `${testEmail} should be a string`)
+        })
+        it('should fail on error email', () => {
+            const testEmail = Error
+            expect(() => users.findByEmail(testEmail)).to.throw(TypeError, `${testEmail} should be a string`)
+        })
     })
     describe('findByUserId', () => {
         const _user = {
@@ -128,6 +156,134 @@ describe('user', () => {
                     expect(user.password).to.be.a('string')
                 })
         )
+        it('should fail on error userId', () => {
+            const testId = undefined
+            expect(() => users.findByUserId(testId)).to.throw(Error, `id should be defined`)
+        })
+        it('should fail on null userId', () => {
+            const testId = null
+            expect(() => users.findByUserId(testId)).to.throw(Error, `id should be defined`)
+        })
+        it('should fail on boolean userId', () => {
+            const testId = true
+            expect(() => users.findByUserId(testId)).to.throw(TypeError, `${testId} should be a string`)
+        })
+        it('should fail on object userId', () => {
+            const testId = {}
+            expect(() => users.findByUserId(testId)).to.throw(TypeError, `${testId} should be a string`)
+        })
+        it('should fail on number userId', () => {
+            const testId = 4
+            expect(() => users.findByUserId(testId)).to.throw(TypeError, `${testId} should be a string`)
+        })
+        it('should fail on date userId', () => {
+            const testId = Date
+            expect(() => users.findByUserId(testId)).to.throw(TypeError, `${testId} should be a string`)
+        })
+        it('should fail on error userId', () => {
+            const testId = Error
+            expect(() => users.findByUserId(testId)).to.throw(TypeError, `${testId} should be a string`)
+        })
+    })
+    describe('update', () => {
+        const _user = {
+            name: 'Tachi',
+            surname: 'Melodin',
+            password: 'meguhtalagasssolina'
+        }
+        let userId
+        
+        beforeEach(() => {
+            _user.email = `Tachito-${Math.random()}`
+            return users.collection.insertOne(_user)
+            .then(res => userId = res.insertedId.toString())
+        })
+        
+        it('should succeed with correct with one new data key', () => {
+            const data = {name : 'testUsername'}
+            return users.update(userId, data)
+                .then(() => users.findByUserId(userId))
+                    .then(user => {
+                        expect(user).to.exist
+                        expect(user.name).to.exist
+                        expect(user.name).to.be.a('string')
+                        expect(user.name).to.equal(data.name)
+                        expect(user.surname).to.exist
+                        expect(user.surname).to.be.a('string')
+                        expect(user.email).to.exist
+                        expect(user.email).to.be.a('string')
+                        expect(user.password).to.exist
+                        expect(user.password).to.be.a('string')
+                    })
+        })
+        it('should succeed with more than one new data key', () => {
+            const data = {name: 'testUsername', surname: 'newSurname'}
+            return users.update(userId, data)
+                .then(() => users.findByUserId(userId))
+                    .then(user => {
+                        expect(user).to.exist
+                        expect(user.name).to.exist
+                        expect(user.name).to.be.a('string')
+                        expect(user.name).to.equal(data.name)
+                        expect(user.surname).to.exist
+                        expect(user.surname).to.be.a('string')
+                        expect(user.surname).to.equal(data.surname)
+                        expect(user.email).to.exist
+                        expect(user.email).to.be.a('string')
+                        expect(user.password).to.exist
+                        expect(user.password).to.be.a('string')
+                    })
+        })
+        it('should succeed adding new data key', () => {
+            const data = {name: 'testUsername', surname: 'newSurname', car: 'Smart'}
+            return users.update(userId, data)
+                .then(() => users.findByUserId(userId))
+                    .then(user => {
+                        expect(user).to.exist
+                        expect(user.name).to.exist
+                        expect(user.name).to.be.a('string')
+                        expect(user.name).to.equal(data.name)
+                        expect(user.surname).to.exist
+                        expect(user.surname).to.be.a('string')
+                        expect(user.surname).to.equal(data.surname)
+                        expect(user.email).to.exist
+                        expect(user.email).to.be.a('string')
+                        expect(user.password).to.exist
+                        expect(user.password).to.be.a('string')
+                        expect(user.car).to.exist
+                        expect(user.car).to.be.a('string')
+                        expect(user.car).to.equal(data.car)
+                    })
+        })
+    })
+    describe('remove', () => {
+        const _user = {
+            name: 'Tachi',
+            surname: 'Melodin',
+            password: 'meguhtalagasssolina'
+        }
+        let userId
+
+        beforeEach(() => {
+            _user.email = `Tachito-${Math.random()}`
+            return users.collection.insertOne(_user)
+                .then(res => userId = res.insertedId.toString())
+        })
+        it('should succeed with correct id', () => {
+            return users.remove(userId)
+                .then(res => {
+                    expect(res.deletedCount).to.equal(1)
+                    return users.collection.findOne({_id: ObjectId(userId)   })
+                })
+                .then(res => expect(res).to.be.null)                
+        })
+        it('should fail with wrong id', () => {
+            const userId = '5c6fd1ec978e082628684c69'
+            return users.remove(userId)
+                .then(res => {
+                    expect(res.deletedCount).to.equal(0)
+                })
+        })
     })
     
 

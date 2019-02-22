@@ -45,7 +45,7 @@ const logic = {
 
         if (password !== passwordConfirmation) throw Error('passwords do not match')
 
-        return userApi.register(name, surname, email, password)
+        return users.add({name, surname, email, password})
     },
 
     /**
@@ -62,7 +62,7 @@ const logic = {
         if (typeof password !== 'string') throw TypeError(password + ' is not a string')
 
         if (!password.trim().length) throw Error('password cannot be empty')
-        
+
         return users.findByEmail(email)
             .then(user => {
                 if (!user) throw Error(`user with email ${email} not found`)
@@ -72,17 +72,25 @@ const logic = {
                 const token = jwt.sign({
                     data: userId
                 }, secret, { expiresIn: '48h' })
-                return {id: userId, token}
+                return { id: userId, token }
             })
-},
+    },
 
     retrieveUser(userId, token) {
 
-        if (jwt.verify(token, SECRET_JSON) !== true) throw Error('Incorrect token')
+        // if (typeof userId !== 'string') throw TypeError(userId + ' is not a string')
+
+        // if (!userId.trim().length) throw Error('userId cannot be empty')
+
+        // if (typeof token !== 'string') throw TypeError(token + ' is not a string')
+
+        // if (!token.trim().length) throw Error('token cannot be empty')
+
+        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
 
         return users.findByUserId(userId)
-            .then(({ id, name, surname, username: email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
-                id,
+            .then(({ _id: id, name, surname, email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
+                id: id.toString(),
                 name,
                 surname,
                 email,
@@ -90,187 +98,218 @@ const logic = {
                 favoriteAlbums,
                 favoriteTracks
             }))
-        // return userApi.retrieve(userId, token)
-        //     .then(({ id, name, surname, username: email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
-        //         id,
-        //         name,
-        //         surname,
-        //         email,
-        //         favoriteArtists,
-        //         favoriteAlbums,
-        //         favoriteTracks
-        //     }))
     },
 
-        // TODO updateUser and removeUser
+    updateUser(userId, token, data) {
 
-        /**
-         * Search artists.
-         * 
-         * @param {string} query 
-         * @returns {Promise}
-         */
-        searchArtists(query) {
-    if (typeof query !== 'string') throw TypeError(`${query} is not a string`)
+        if (typeof token !== 'string') throw TypeError(`${token} is not a string`)
 
-    if (!query.trim().length) throw Error('query is empty')
+        if (!token.trim().length) throw Error('token cannot be empty')
+        
+        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
 
-    return spotifyApi.searchArtists(query)
-},
+        if (typeof userId !== 'string') throw TypeError(userId + ' is not a string')
 
-/**
- * Retrieves an artist.
- * 
- * @param {string} artistId 
- */
-retrieveArtist(artistId) {
-    if (typeof artistId !== 'string') throw TypeError(`${artistId} is not a string`)
+        if (!userId.trim().length) throw Error('userId cannot be empty')
 
-    if (!artistId.trim().length) throw Error('artistId is empty')
+        if (!data) throw Error('data should be defined')
 
-    return spotifyApi.retrieveArtist(artistId)
-    // TODO once artistComments is already implemented
-    // .then(artist =>
-    //     artistComments.find({ artistId: artist.id })
-    //         .then(comments => artist.comments = comments)
-    //         .then(() => artist)
-    // )
-},
+        if (data.constructor !== Object) throw TypeError(`${data} is not an object`)
 
-/**
- * Toggles a artist from non-favorite to favorite, and viceversa.
- * 
- * @param {string} artistId - The id of the artist to toggle in favorites.
- */
-toggleFavoriteArtist(userId, token, artistId) {
+        return users.update(userId, data)
 
-    if (typeof userId !== 'string') throw TypeError(`userId should be a string`)
-    if (typeof token !== 'string') throw TypeError(`token should be a string`)
-    if (typeof artistId !== 'string') throw TypeError(`artistId should be a string`)
+    },
 
-    return userApi.retrieve(userId, token)
-        .then(user => {
-            const { favoriteArtists = [] } = user
+    removeUser(userId, token) {
 
-            const index = favoriteArtists.findIndex(_artistId => _artistId === artistId)
+        if (typeof token !== 'string') throw TypeError(`${token} is not a string`)
 
-            if (index < 0) favoriteArtists.push(artistId)
-            else favoriteArtists.splice(index, 1)
+        if (!token.trim().length) throw Error('token cannot be empty')
+        
+        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
 
-            return userApi.update(userId, token, { favoriteArtists })
-        })
-},
+        if (typeof userId !== 'string') throw TypeError(userId + ' is not a string')
 
-addCommentToArtist(userId, token, artistId, text) {
-    // TODO validate userId, token, artistId and text
+        if (!userId.trim().length) throw Error('userId cannot be empty')
 
-    const comment = {
-        userId,
-        artistId,
-        text,
-        date: new Date
+        return users.remove(userId)
+    },
+
+
+    /**
+     * Search artists.
+     * 
+     * @param {string} query 
+     * @returns {Promise}
+     */
+    searchArtists(query) {
+        if (typeof query !== 'string') throw TypeError(`${query} is not a string`)
+
+        if (!query.trim().length) throw Error('query is empty')
+
+        return spotifyApi.searchArtists(query)
+    },
+
+    /**
+     * Retrieves an artist.
+     * 
+     * @param {string} artistId 
+     */
+    retrieveArtist(artistId) {
+        if (typeof artistId !== 'string') throw TypeError(`${artistId} is not a string`)
+
+        if (!artistId.trim().length) throw Error('artistId is empty')
+
+        return spotifyApi.retrieveArtist(artistId)
+        // TODO once artistComments is already implemented
+        // .then(artist =>
+        //     artistComments.find({ artistId: artist.id })
+        //         .then(comments => artist.comments = comments)
+        //         .then(() => artist)
+        // )
+    },
+
+    /**
+     * Toggles a artist from non-favorite to favorite, and viceversa.
+     * 
+     * @param {string} artistId - The id of the artist to toggle in favorites.
+     */
+    toggleFavoriteArtist(userId, token, artistId) {
+
+        //todo
+        if (typeof userId !== 'string') throw TypeError(`userId should be a string`)
+        
+        if (typeof token !== 'string') throw TypeError(`${token} is not a string`)
+        
+        if (!token.trim().length) throw Error('token cannot be empty')
+        
+        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
+
+        if (typeof artistId !== 'string') throw TypeError(`artistId should be a string`)
+
+        return users.findByUserId(userId)
+            .then(user => {
+                const { favoriteArtists = [] } = user
+
+                const index = favoriteArtists.findIndex(_artistId => _artistId === artistId)
+
+                if (index < 0) favoriteArtists.push(artistId)
+                else favoriteArtists.splice(index, 1)
+
+                return users.update(userId, { favoriteArtists })
+            })
+    },
+
+    addCommentToArtist(userId, token, artistId, text) {
+        // TODO validate userId, token, artistId and text
+
+        const comment = {
+            userId,
+            artistId,
+            text,
+            date: new Date
+        }
+
+        return userApi.retrieve(userId, token)
+            .then(() => artistComments.add(comment))
+            .then(() => comment.id)
+    },
+
+    listCommentsFromArtist(artistId) {
+        // TODO artistId
+
+        return artistComments.find({ artistId })
+    },
+
+    /**
+     * Retrieves albums from artist.
+     * 
+     * @param {string} artistId 
+     */
+    retrieveAlbums(artistId) {
+        if (typeof artistId !== 'string') throw TypeError(`${artistId} is not a string`)
+
+        if (!artistId.trim().length) throw Error('artistId is empty')
+
+        return spotifyApi.retrieveAlbums(artistId)
+    },
+
+    /**
+     * Retrieves an album.
+     * 
+     * @param {string} albumId 
+     */
+    retrieveAlbum(albumId) {
+        if (typeof albumId !== 'string') throw TypeError(`${albumId} is not a string`)
+
+        if (!albumId.trim().length) throw Error('albumId is empty')
+
+        return spotifyApi.retrieveAlbum(albumId)
+    },
+
+    /**
+     * Toggles a album from non-favorite to favorite, and viceversa.
+     * 
+     * @param {string} albumId - The id of the album to toggle in favorites.
+     */
+    toggleFavoriteAlbum(userId, token, albumId) {
+        return userApi.retrieve(userId, token)
+            .then(user => {
+                const { favoriteAlbums = [] } = user
+
+                const index = favoriteAlbums.findIndex(_albumId => _albumId === albumId)
+
+                if (index < 0) favoriteAlbums.push(albumId)
+                else favoriteAlbums.splice(index, 1)
+
+                return userApi.update(userId, token, { favoriteAlbums })
+            })
+    },
+
+    /**
+     * Retrieves tracks from album.
+     * 
+     * @param {string} albumId 
+     */
+    retrieveTracks(albumId) {
+        if (typeof albumId !== 'string') throw TypeError(`${albumId} is not a string`)
+
+        if (!albumId.trim().length) throw Error('albumId is empty')
+
+        return spotifyApi.retrieveTracks(albumId)
+    },
+
+    /**
+     * Retrieves track.
+     * 
+     * @param {string} trackId 
+     */
+    retrieveTrack(trackId) {
+        if (typeof trackId !== 'string') throw TypeError(`${trackId} is not a string`)
+
+        if (!trackId.trim().length) throw Error('trackId is empty')
+
+        return spotifyApi.retrieveTrack(trackId)
+    },
+
+    /**
+     * Toggles a track from non-favorite to favorite, and viceversa.
+     * 
+     * @param {string} trackId - The id of the track to toggle in favorites.
+     */
+    toggleFavoriteTrack(userId, token, trackId) {
+        return userApi.retrieve(userId, token)
+            .then(user => {
+                const { favoriteTracks = [] } = user
+
+                const index = favoriteTracks.findIndex(_trackId => _trackId === trackId)
+
+                if (index < 0) favoriteTracks.push(trackId)
+                else favoriteTracks.splice(index, 1)
+
+                return userApi.update(userId, token, { favoriteTracks })
+            })
     }
-
-    return userApi.retrieve(userId, token)
-        .then(() => artistComments.add(comment))
-        .then(() => comment.id)
-},
-
-listCommentsFromArtist(artistId) {
-    // TODO artistId
-
-    return artistComments.find({ artistId })
-},
-
-/**
- * Retrieves albums from artist.
- * 
- * @param {string} artistId 
- */
-retrieveAlbums(artistId) {
-    if (typeof artistId !== 'string') throw TypeError(`${artistId} is not a string`)
-
-    if (!artistId.trim().length) throw Error('artistId is empty')
-
-    return spotifyApi.retrieveAlbums(artistId)
-},
-
-/**
- * Retrieves an album.
- * 
- * @param {string} albumId 
- */
-retrieveAlbum(albumId) {
-    if (typeof albumId !== 'string') throw TypeError(`${albumId} is not a string`)
-
-    if (!albumId.trim().length) throw Error('albumId is empty')
-
-    return spotifyApi.retrieveAlbum(albumId)
-},
-
-/**
- * Toggles a album from non-favorite to favorite, and viceversa.
- * 
- * @param {string} albumId - The id of the album to toggle in favorites.
- */
-toggleFavoriteAlbum(userId, token, albumId) {
-    return userApi.retrieve(userId, token)
-        .then(user => {
-            const { favoriteAlbums = [] } = user
-
-            const index = favoriteAlbums.findIndex(_albumId => _albumId === albumId)
-
-            if (index < 0) favoriteAlbums.push(albumId)
-            else favoriteAlbums.splice(index, 1)
-
-            return userApi.update(userId, token, { favoriteAlbums })
-        })
-},
-
-/**
- * Retrieves tracks from album.
- * 
- * @param {string} albumId 
- */
-retrieveTracks(albumId) {
-    if (typeof albumId !== 'string') throw TypeError(`${albumId} is not a string`)
-
-    if (!albumId.trim().length) throw Error('albumId is empty')
-
-    return spotifyApi.retrieveTracks(albumId)
-},
-
-/**
- * Retrieves track.
- * 
- * @param {string} trackId 
- */
-retrieveTrack(trackId) {
-    if (typeof trackId !== 'string') throw TypeError(`${trackId} is not a string`)
-
-    if (!trackId.trim().length) throw Error('trackId is empty')
-
-    return spotifyApi.retrieveTrack(trackId)
-},
-
-/**
- * Toggles a track from non-favorite to favorite, and viceversa.
- * 
- * @param {string} trackId - The id of the track to toggle in favorites.
- */
-toggleFavoriteTrack(userId, token, trackId) {
-    return userApi.retrieve(userId, token)
-        .then(user => {
-            const { favoriteTracks = [] } = user
-
-            const index = favoriteTracks.findIndex(_trackId => _trackId === trackId)
-
-            if (index < 0) favoriteTracks.push(trackId)
-            else favoriteTracks.splice(index, 1)
-
-            return userApi.update(userId, token, { favoriteTracks })
-        })
-}
 }
 
 module.exports = logic

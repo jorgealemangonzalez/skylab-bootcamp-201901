@@ -1,7 +1,7 @@
 require('dotenv').config()
 require('isomorphic-fetch')
 
-const { MongoClient } = require('mongodb')
+const { MongoClient, ObjectId } = require('mongodb')
 const expect = require('expect')
 const userApi = require('../user-api')
 const spotifyApi = require('../spotify-api')
@@ -590,35 +590,115 @@ describe('logic', () => {
     describe('retrieve user', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
-        const email = `manuelbarzi@mail.com-${Math.random()}`
-        const password = '123'
+        let email
+        let password
         const passwordConfirm = password
         let _id, _token
 
-        beforeEach(() =>
+        beforeEach(() => {
             // userApi.register(name, surname, email, password)
             //     .then(() => userApi.authenticate(email, password))
             //     .then(({ id, token }) => {
             //         _id = id
             //         _token = token
             //     })
-            users.add({name, surname, email, password})
-                .then(() => users.collection.findOne({ email: email }))
-                .then(({id, token}) => {
-                    _id = id
-                    _token = token
+            email = `manuelbarzi@mail.com-${Math.random()}`
+            password = '123'
+            return users.add({name, surname, email, password})
+                .then(() => users.findByEmail(email))
+                .then((user) => {
+                    _id = user._id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
                 })
-        )
+                .catch((err) => {
+                    if (err) throw err
+                })
+            })
 
         it('should succeed on correct credentials', () =>
             logic.retrieveUser(_id, _token)
                 .then(user => {
-                    expect(user.id).toBe(_id)
+                    expect(user.id).toEqual(_id)
                     expect(user.name).toBe(name)
                     expect(user.surname).toBe(surname)
                     expect(user.email).toBe(email)
                 })
         )
+    })
+
+    describe('update user', () => {
+        const name = 'Manuel'
+        const surname = 'Barzi'
+        let email
+        let password
+        let _id, _token
+
+        beforeEach(() => {
+            email = `manuelbarzi@mail.com-${Math.random()}`
+            password = '123'
+            return users.add({name, surname, email, password})
+                .then(() => users.findByEmail(email))
+                .then((user) => {
+                    _id = user._id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
+                })
+                .catch((err) => {
+                    if (err) throw err
+                })
+            })
+
+        it('should succeed on correct credentials', () => {
+            let data = {name: 'Manuel2'}
+            return logic.updateUser(_id, _token, data)
+                .then(() => users.findByUserId(_id))
+                .then(user => {
+                    expect(user._id).toEqual(ObjectId(_id))
+                    expect(user.name).toBe(data.name)
+                    expect(user.surname).toBe(surname)
+                    expect(user.email).toBe(email)
+                })
+            })
+        // TODO more unit test cases
+    })
+
+    describe('remove user', () => {
+        const name = 'Manuel'
+        const surname = 'Barzi'
+        let email
+        let password
+        let _id, _token
+
+        beforeEach(() => {
+            email = `manuelbarzi@mail.com-${Math.random()}`
+            password = '123'
+            return users.add({name, surname, email, password})
+                .then(() => users.findByEmail(email))
+                .then((user) => {
+                    _id = user._id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
+                })
+                .catch((err) => {
+                    if (err) throw err
+                })
+            })
+
+        it('should succeed on correct credentials', () => {
+            return logic.removeUser(_id, _token)
+                .then(res => {
+                    expect(res.deletedCount).toBe(1)
+                })
+                .then(() => users.findByUserId(_id))
+                .then(user => {
+                    expect(user).toBeNull()
+                })
+            })
+        // TODO more unit test cases
     })
 
     // TODO updateUser and removeUser
@@ -722,22 +802,28 @@ describe('logic', () => {
 
         beforeEach(() => {
             email = `manuelbarzi@mail.com-${Math.random()}`
-            return userApi.register(name, surname, email, password)
-                .then(() => userApi.authenticate(email, password))
-                .then(({ id, token }) => {
-                    _id = id
-                    _token = token
+            return users.add({name, surname, email, password})
+                .then(() => users.findByEmail(email))
+                .then((user) => {
+                    _id = user._id.toString()
+                    _token = jwt.sign({
+                        data: _id
+                    }, SECRET_JSON, { expiresIn: '48h' })
                 })
-        })
+                .catch((err) => {
+                    if (err) throw err
+                })
+            })
 
         it('should succeed on correct data', () =>
             logic.toggleFavoriteArtist(_id, _token, artistId)
-                .then(() => userApi.retrieve(_id, _token))
+                .then(() => users.findByUserId(_id))
                 .then(user => {
-                    expect(user.id).toBe(_id)
+                    debugger
+                    expect(user._id).toEqual(ObjectId(_id))
                     expect(user.name).toBe(name)
                     expect(user.surname).toBe(surname)
-                    expect(user.username).toBe(email)
+                    expect(user.email).toBe(email)
 
                     expect(user.favoriteArtists).toBeDefined()
                     expect(user.favoriteArtists.length).toBe(1)
@@ -745,12 +831,12 @@ describe('logic', () => {
 
                     return logic.toggleFavoriteArtist(_id, _token, artistId)
                 })
-                .then(() => userApi.retrieve(_id, _token))
+                .then(() => users.findByUserId(_id))
                 .then(user => {
-                    expect(user.id).toBe(_id)
+                    expect(user._id).toEqual(ObjectId(_id))
                     expect(user.name).toBe(name)
                     expect(user.surname).toBe(surname)
-                    expect(user.username).toBe(email)
+                    expect(user.email).toBe(email)
 
                     expect(user.favoriteArtists).toBeDefined()
                     expect(user.favoriteArtists.length).toBe(0)
@@ -762,7 +848,7 @@ describe('logic', () => {
         })
         it('should fail object userId instead of string', () => {
             const token = {}
-            expect(() => logic.toggleFavoriteArtist(_id, token, artistId)).toThrow(TypeError('token should be a string'))
+            expect(() => logic.toggleFavoriteArtist(_id, token, artistId)).toThrow(TypeError(`${token} is not a string`))
         })
         it('should fail object userId instead of string', () => {
             const artist_Id = {}
@@ -979,20 +1065,21 @@ describe('logic', () => {
     describe('toggle favorite album', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
-        const email = `manuelbarzi@mail.com-${Math.random()}`
+        let email
         const password = '123'
         const passwordConfirm = password
         const albumId = '4hBA7VgOSxsWOf2N9dJv2X' // Rebel Heart Tour (Live)
         let _id, _token
 
-        beforeEach(() =>
-            logic.registerUser(name, surname, email, password, passwordConfirm)
+        beforeEach(() => {
+            email = `manuelbarzi@mail.com-${Math.random()}`
+            return logic.registerUser(name, surname, email, password, passwordConfirm)
                 .then(() => logic.authenticateUser(email, password))
                 .then(({ id, token }) => {
                     _id = id
                     _token = token
                 })
-        )
+        })
 
         it('should succeed on correct data', () =>
             logic.toggleFavoriteAlbum(_id, _token, albumId)
