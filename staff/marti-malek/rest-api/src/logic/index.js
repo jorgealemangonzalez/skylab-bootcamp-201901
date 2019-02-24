@@ -7,12 +7,12 @@ const users = require('../data/users')
 const artistComments = require('../data/artist-comments')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const { env: { SECRET_JSON } } = process
 
 /**
  * Abstraction of business logic.
  */
 const logic = {
+    jwtsecret: null,
     /**
     * Registers a user.
     * 
@@ -84,7 +84,7 @@ const logic = {
                         if (!match) throw Error('Error in credentials')
                         // if (user.password !== password) throw Error('wrong credentials')
                         const userId = user.id
-                        const secret = SECRET_JSON
+                        const secret = this.jwtsecret
                         const token = jwt.sign({
                             data: userId
                         }, secret, { expiresIn: '48h' })
@@ -112,7 +112,7 @@ const logic = {
 
         if (!token.trim().length) throw Error('token cannot be empty')
 
-        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
+        if (jwt.verify(token, this.jwtsecret).data !== userId) throw Error('Incorrect token')
 
         return users.findByUserId(userId)
             .then(({ id, name, surname, email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
@@ -150,7 +150,7 @@ const logic = {
         
         if (data.constructor !== Object) throw TypeError(`${data} is not an object`)
         
-        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
+        if (jwt.verify(token, this.jwtsecret).data !== userId) throw Error('Incorrect token')
 
         return users.update(userId, data)
 
@@ -175,7 +175,7 @@ const logic = {
         
         if (!userId.trim().length) throw Error('userId cannot be empty')
         
-        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
+        if (jwt.verify(token, this.jwtsecret).data !== userId) throw Error('Incorrect token')
 
         return users.remove(userId)
     },
@@ -243,7 +243,7 @@ const logic = {
 
         if (!artistId.trim().length) throw Error('artistId cannot be empty')
         
-        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
+        if (jwt.verify(token, this.jwtsecret).data !== userId) throw Error('Incorrect token')
 
         return users.findByUserId(userId)
             .then(user => {
@@ -267,7 +267,7 @@ const logic = {
 
         if (!token.trim().length) throw Error('token cannot be empty')
 
-        if (jwt.verify(token, SECRET_JSON).data !== userId) throw Error('Incorrect token')
+        if (jwt.verify(token, this.jwtsecret).data !== userId) throw Error('Incorrect token')
 
         if (typeof artistId !== 'string') throw TypeError(`artistId should be a string`)
 
