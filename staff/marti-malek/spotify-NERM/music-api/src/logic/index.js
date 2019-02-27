@@ -4,7 +4,7 @@ require('dotenv').config()
 
 const spotifyApi = require('../spotify-api')
 const users = require('../data/users')
-const artistComments = require('../data/artist-comments')
+const trackComments = require('../data/track-comments')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
@@ -74,7 +74,7 @@ const logic = {
         if (typeof password !== 'string') throw TypeError(password + ' is not a string')
 
         if (!password.trim().length) throw Error('password cannot be empty')
-
+        
         return users.findByEmail(email)
             .then(user => {
                 if (!user) throw Error(`user with email ${email} not found`)
@@ -213,8 +213,7 @@ const logic = {
 
         return spotifyApi.retrieveArtist(artistId)
             .then(artist => {
-                debugger
-                return artistComments.find({ artistId: artist.id })
+                return trackComments.find({ artistId: artist.id })
                     .then(comments => {
                         artist.comments = comments
                         return artist
@@ -286,10 +285,54 @@ const logic = {
             .then(() => comment.id)
     },
 
+    addCommentToTrack(userId, token, trackId, text) {
+        // TODO validate userId, token, trackId and text
+
+        if (typeof userId !== 'string') throw TypeError(`userId should be a string`)
+
+        if (typeof token !== 'string') throw TypeError(`${token} is not a string`)
+
+        if (!token.trim().length) throw Error('token cannot be empty')
+
+        if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
+
+        if (typeof trackId !== 'string') throw TypeError(`trackId should be a string`)
+
+        if (typeof text !== 'string') throw TypeError(`${text} is not a string`)
+
+        const comment = {
+            userId,
+            trackId,
+            text,
+            date: new Date
+        }
+
+        return users.findByUserId(userId)
+            .then(() => {
+                debugger
+                return trackComments.add(comment)
+            })
+            .then(() => comment.id)
+    },
+
     listCommentsFromArtist(artistId) {
         // TODO artistId
 
         return artistComments.find({ artistId })
+    },
+
+    listCommentsFromTrack(trackId) {
+        // TODO trackId
+
+        return trackComments.find({ trackId })
+    },
+
+    deleteCommentFromTrack(userId, commentId, token) {
+        // TODO trackId
+
+        if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
+
+        return trackComments.remove(commentId)
     },
 
     /**
@@ -326,6 +369,8 @@ const logic = {
     toggleFavoriteAlbum(userId, token, albumId) {
 
         //TODO validate
+        if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
+
 
         return users.findByUserId(userId)
             .then(user => {
@@ -374,13 +419,14 @@ const logic = {
     toggleFavoriteTrack(userId, token, trackId) {
 
         // TODO validate 
+        if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
 
         return users.findByUserId(userId)
             .then(user => {
-                const { favoriteTracks = [] } = user
-
+                const { favoriteTracks } = user
+                
                 const index = favoriteTracks.findIndex(_trackId => _trackId === trackId)
-
+                
                 if (index < 0) favoriteTracks.push(trackId)
                 else favoriteTracks.splice(index, 1)
 

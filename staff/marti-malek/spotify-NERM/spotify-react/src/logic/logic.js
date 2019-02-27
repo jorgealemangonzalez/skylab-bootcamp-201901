@@ -7,28 +7,25 @@ import musicApi from '../musicApi'
 const logic = {
     /**
      * 
+     * @param {string} id 
+     * @param {string} token 
+     */
+    retrieveUser(id, token) {
+        return musicApi.retrieve(id, token)
+    },
+    /**
+     * 
      * Toggles between pushing and deleting an id of a song to the array of favourite songs.
      * 
      * @param {string} id 
-     * @param {string} email 
-     * @param {function} callback 
+     * @param {string} token 
+     * @param {function} trackId 
      */
-    toggleFavourite(id, email, callback) {
-        var user = users.find(function (user) {
-            return user.email === email
-        })
+    toggleFavourite(id, token, trackId) {
 
+        if (typeof id !== 'string') throw TypeError('email ' + id + ' should be a string')
 
-        if (user.favourites.includes(id)) {
-            const position = user.favourites.indexOf(id)
-
-            user.favourites.splice(position, 1)
-            console.log(user.favourites)
-        } else {
-            user.favourites.push(id)
-            console.log(user.favourites)
-        }
-        callback()
+        return musicApi.toggleFavouriteTrack(id, token, trackId)
     },
     /**
      * 
@@ -93,24 +90,6 @@ const logic = {
         if (!passwordConfirm.trim().length) throw Error('password confirmation cannot be empty');
 
         return musicApi.register(name, surname, email, password, passwordConfirm)
-
-        // var user = users.find(function (user) {
-        //     return user.email === email
-        // })
-
-        // if (user) throw Error (user + 'already exists')
-
-        // if (password !== passwordConfirm) throw Error ("passwords don't match")
-
-        // users.push({
-        //     name: name,
-        //     surname: surname,
-        //     email: email,
-        //     password: password,
-        //     favourites: []
-        // })
-
-        // callback()
     },
     /**
      * Searches for artists.
@@ -126,10 +105,7 @@ const logic = {
         /* if (typeof callback !== 'function') throw TypeError (`${callback} is not a function`) */
 
         return musicApi.searchArtists(query)
-            .then(artists => {
-                console.log(artists)
-                return artists
-            })
+            .then(artists => artists)
     },
     /**
      * 
@@ -170,6 +146,34 @@ const logic = {
         if (!(id.trim().length)) throw Error('query is empty')
 
         return musicApi.retrieveSong(id)
+    },
+    /**
+     * 
+     * Adds a comment to a track.
+     * 
+     * @param {string} userId 
+     * @param {string} text 
+     * @param {string} artistId 
+     */
+    addCommentToTrack(userId, text, artistId, token) {
+
+        return musicApi.addCommentToTrack(userId, text, artistId, token)
+    },
+
+    /**
+     * 
+     * Lists all comments from a track.
+     * 
+     * @param {string} trackId 
+     */
+    listCommentsFromTrack(trackId) {
+
+        return musicApi.listCommentsFromTrack(trackId)
+    },
+
+    deleteCommentFromTrack(commentId, userId, trackId, userToken) {
+        
+        return musicApi.deleteCommentFromTrack(commentId, userId, trackId, userToken)
     }
 }
 

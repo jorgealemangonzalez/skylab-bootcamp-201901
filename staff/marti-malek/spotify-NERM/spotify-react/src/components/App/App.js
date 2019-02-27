@@ -11,7 +11,7 @@ import Favourite from '../Favourites'
 import '../Search/index.sass'
 
 class App extends Component {
-    state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', userEmail: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible: false, favouriteVisible: false, artists: [], albums: [], tracks: [], song: {}, popover: [], favouriteTracks: [], user: {} }
+    state = { loginFeedback: '', registerFeedback: '', searchFeedback: '', userEmail: '', registerVisible: false, loginVisible: true, searchVisible: false, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible: false, favouriteVisible: false, artists: [], albums: [], tracks: [], song: {}, popover: [], favouriteTracks: [], user: {}, userToken: null, isLiked: false, trackId: null, trackComments: [] }
 
     toggleHidden = () => {
         this.setState({
@@ -27,6 +27,7 @@ class App extends Component {
             artistsVisible: false,
             albumsVisible: false,
             tracksVisible: false,
+            songVisible: false,
             loginVisible: true
         })
     }
@@ -73,13 +74,6 @@ class App extends Component {
                     this.setState({ artistsVisible: true, artists })
                 })
             this.setState({ searchFeedback: '' })
-            /* if (error) {
-                console.error(error.message)
-                this.setState({ searchFeedback: error.message })
-            } else {
-                this.setState({ artistsVisible: true, artists})
-                this.setState({ searchFeedback: '' })
-            } */
         } catch ({ message }) {
             this.setState({ searchFeedback: message, artistsVisible: false, albumsVisible: false, tracksVisible: false, songVisible: false })
         }
@@ -109,10 +103,19 @@ class App extends Component {
         }
     }
     handleSong = (trackId) => {
-        debugger
+        if (trackId !== undefined) this.setState({ trackId: trackId })
+        const { state: { userToken, user } } = this
         try {
-            logic.retrieveSong(trackId)
-                .then(song => this.setState({ tracksVisible: false, songVisible: true, song }))
+            Promise.all([
+                logic.retrieveSong(trackId),
+                logic.retrieveUser(user.id, userToken),
+                logic.listCommentsFromTrack(trackId)
+            ])
+                .then(([song, { favoriteTracks }, trackComments]) => {
+
+                    song.isFavorite = favoriteTracks.includes(trackId)
+                    this.setState({ tracksVisible: false, songVisible: true, song, trackComments })
+                })
         } catch ({ message }) {
             console.error(message)
         }
@@ -138,6 +141,10 @@ class App extends Component {
     handleLogin = (email, password) => {
         try {
             logic.login(email, password)
+                .then(({ id, token }) => {
+                    this.setState({ userToken: token })
+                    return logic.retrieveUser(id, token)
+                })
                 .then(user => {
                     this.setState({ loginFeedback: '', user: user })
                 })
@@ -151,31 +158,14 @@ class App extends Component {
             this.setState({ loginFeedback: message })
         }
     }
-    handleFavourite = (id) => {
-        const { state: { userEmail, user } } = this
+    handleFavourite = () => {
+        const { state: { user: { id }, userToken, trackId } } = this
 
-        logic.toggleFavourite(id, userEmail, () => {
-            this.setState({ favouriteTracks: user.favourite })
-            console.log('Added to favourites')
-        })
+        logic.toggleFavourite(id, userToken, trackId)
+            .then(() => this.handleSong(trackId))
     }
 
     handleFavourites = () => {
-        /* const {state: {favouriteTracks, user}} = this
-  
-  
-      try {
-          logic.retrieveSong(trackId, (error, song) => {
-              if (error) {
-                  console.error(error.message)
-              } else {
-                  this.setState({})
-              }
-          })
-      } catch ({message}) {
-          console.error(message)
-      } */
-
         this.setState({
             searchVisible: false,
             artistsVisible: false,
@@ -186,9 +176,23 @@ class App extends Component {
         })
     }
 
+    handleAddCommentToTrack = (trackId, text) => {
+        const { state: { user, userToken } } = this
+
+        return logic.addCommentToTrack(user.id, text, trackId, userToken)
+            .then(() => logic.listCommentsFromTrack(trackId))
+            .then(trackComments => this.setState({ trackComments }))
+    }
+
+    handleDeleteComment = (commentId, trackId) => {
+        const { state: { user, userToken } } = this
+
+        return logic.deleteCommentFromTrack(commentId, user.id, trackId, userToken)
+    }
+
     render() {
 
-        const { state: { artists, albums, tracks, song, user, favouriteTracks, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible, favouriteVisible }, handleLogin, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack, handleFavourite, handleFavourites, handleFavsBack } = this
+        const { state: { artists, albums, tracks, song, user, favouriteTracks, loginFeedback, registerFeedback, searchFeedback, registerVisible, loginVisible, searchVisible, artistsVisible, albumsVisible, tracksVisible, songVisible, favouriteVisible, trackComments }, handleLogin, handleAddCommentToTrack, handleRegister, handleSearch, handleAlbum, handleTrack, handleSong, handleArtistsBack, handleLogout, handleAlbumsBack, handleTracksBack, handleSongBack, handleFavourite, handleFavourites, handleFavsBack, handleCheckFavs, handleDeleteComment } = this
 
         return <main className="app">
             {loginVisible && <Login onLogin={handleLogin} onToRegister={this.loginHidden} feedback={loginFeedback} />}
@@ -197,7 +201,7 @@ class App extends Component {
             {artistsVisible && <Artists artists={artists} onArtist={handleAlbum} goArtistsBack={handleArtistsBack} />}
             {albumsVisible && <Albums albums={albums} onAlbum={handleTrack} goAlbumsBack={handleAlbumsBack} />}
             {tracksVisible && <Tracks tracks={tracks} onTrack={handleSong} goTracksBack={handleTracksBack} />}
-            {songVisible && <Song song={song} goSongBack={handleSongBack} addFavourite={handleFavourite} user={user} />}
+            {songVisible && <Song song={song} deleteCommentFromTrack={handleDeleteComment} actualUserId={user.id} favouriteTracks={favouriteTracks} trackComments={trackComments} addCommentToTrack={handleAddCommentToTrack} goSongBack={handleSongBack} addFavourite={handleFavourite} checkFavs={handleCheckFavs} user={user} />}
             {favouriteVisible && <Favourite favouriteTracks={favouriteTracks} onTrackClick={handleSong} goFavsBack={handleFavsBack} />}
 
         </main>

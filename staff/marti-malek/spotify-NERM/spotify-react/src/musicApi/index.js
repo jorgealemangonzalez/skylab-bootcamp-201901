@@ -16,8 +16,8 @@ const musicApi = {
         return fetch(this.url + '/user', {
             method: 'POST',
             headers: {
-                'content-type' : 'application/json'
-            }, 
+                'content-type': 'application/json'
+            },
             body: JSON.stringify({ name, surname, email, password, passwordConfirm })
         })
             .then(response => response.json())
@@ -33,14 +33,14 @@ const musicApi = {
         return fetch(`${this.url}/user/auth`, {
             method: 'POST',
             headers: {
-                'content-type' : 'application/json'
-            }, 
-            body: JSON.stringify({email, password })
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
         })
-        .then(response => response.json())
-        .then(response => response)
+            .then(response => response.json())
+            .then(response => response)
     },
-    retrieve(id,token) {
+    retrieve(id, token) {
         if (typeof id !== 'string') throw TypeError(`${id} is not a string`)
         if (!id.trim().length) throw Error('id is empty')
 
@@ -53,8 +53,8 @@ const musicApi = {
                 authorization: `Bearer ${token}`,
             }
         })
-        .then(response => response.json())
-        .then(response => response)
+            .then(response => response.json())
+            .then(response => response)
     },
     update(id, token, data) {
         return fetch(this.url + `/user/${id}`, {
@@ -64,19 +64,34 @@ const musicApi = {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(response => response)
-    } ,
+            .then(response => response.json())
+            .then(response => response)
+    },
     remove(id, token, email, password) {
         return fetch(`${this.url}/user/${id}`, {
             method: 'DELETE',
             headers: {
                 authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({username: email, password })
+            body: JSON.stringify({ email, password })
         })
-        .then(response => response.json())
-        .then(response => response)
+            .then(response => response.json())
+            .then(response => response)
+    },
+    toggleFavouriteTrack(userId, token, trackId) {
+        return fetch(`${this.url}/track/${trackId}`, {
+            method: 'POST',
+            headers: {
+                authorization: `Bearer ${token}`,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({ userId })
+        })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response.id.value.favoriteTracks, 'musicApi')
+                return response.id.value.favoriteTracks
+            })
     },
     /**
      * Searches artists.
@@ -142,12 +157,44 @@ const musicApi = {
 
         if (!id.trim().length) throw Error('id is empty')
 
-        return fetch(`${this.url}/track/${id}`, {
-            method: 'GET',
+        return fetch(`${this.url}/track/${id}`)
+            .then(res => res.json())
+    },
+    /**
+     * 
+     * Adds a comment to an artist.
+     * 
+     * @param {string} trackId 
+     */
+    addCommentToTrack(userId, text, trackId, token) {
+
+        if (typeof trackId !== 'string') throw TypeError(`${trackId} is not a string`)
+
+        if (!trackId.trim().length) throw Error('trackId is empty')
+
+        return fetch(`${this.url}/track/${trackId}/comment`, {
+            method: 'POST',
             headers: {
-                authorization: `Bearer ${this.token}`
-            }
+                authorization: `Bearer ${token}`,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({ userId, text })
         })
+            .then(res => res.json())
+    },
+    /**
+     * 
+     * Adds a comment to an artist.
+     * 
+     * @param {string} trackId 
+     */
+    listCommentsFromTrack(trackId) {
+
+        if (typeof trackId !== 'string') throw TypeError(`${trackId} is not a string`)
+
+        if (!trackId.trim().length) throw Error('trackId is empty')
+
+        return fetch(`${this.url}/track/${trackId}/comment`)
             .then(res => res.json())
     }
 }

@@ -9,13 +9,19 @@ module.exports = {
 
     addCommentToArtist: require('./add-comment-to-artist'),
 
+    addCommentToTrack: require('./add-comment-to-track'),
+
     listCommentsFromArtist: require('./list-comments-from-artist'),
+
+    listCommentsFromTrack: require('./list-comments-from-track'),
+
+    deleteCommentFromTrack: require('./delete-comment-from-track'),
 
     updateUser: require('./update-user'),
 
     retrieveArtist: require('./retrieve-artist'),
 
-    toggleFavouriteArtist: require('./toggle-favourite-artist'),
+    toggleFavouriteTrack: require('./toggle-favourite-track'),
 
     retrieveAlbum: require('./retrieve-album'),
 

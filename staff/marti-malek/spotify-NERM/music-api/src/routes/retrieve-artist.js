@@ -2,7 +2,7 @@ const logic = require('../../src/logic')
 
 module.exports = (req, res) => {
     const { params: { id: artistId } } = req
-
+    debugger
     try {
         logic.retrieveArtist(artistId)
             .then(res.json.bind(res))

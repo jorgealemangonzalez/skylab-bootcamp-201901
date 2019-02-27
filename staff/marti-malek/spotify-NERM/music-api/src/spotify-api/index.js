@@ -95,7 +95,6 @@ const spotifyApi = {
      * @throws {Error} - On empty parameters value.
      */
     retrieveAlbum(albumId) {
-        debugger
         if (typeof albumId !== 'string') throw TypeError(`${albumId} is not a string`)
 
         if (!albumId.trim().length) throw Error('albumId is empty')
@@ -106,10 +105,7 @@ const spotifyApi = {
             }
         })
             .then(response => response.json())
-            .then(({ items }) => {
-                debugger
-                return items
-            })
+            .then(({ items }) => items)
     },
 
     /**
@@ -155,10 +151,7 @@ const spotifyApi = {
             }
         })
             .then(response => response.json())
-            .then(res => {
-                debugger
-                return res
-            })
+            .then(res => res)
     }
 }
 

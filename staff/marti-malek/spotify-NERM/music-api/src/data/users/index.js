@@ -10,6 +10,8 @@ const user = {
         if (user === undefined || user === null) throw Error('user should be defined')
         if (user.constructor !== Object) throw TypeError(`${user} should be an object`)
 
+        user.favoriteTracks = []
+
         return this.collection.insertOne(user)
             .then(res => res.insertedId.toString())
     },
@@ -54,7 +56,7 @@ const user = {
         if (typeof userId !== 'string') throw TypeError(`${userId} should be a string`)
         if (!data) throw Error('data is not defined')
         if (data.constructor !== Object) throw TypeError(`${data} should be an object`)
-
+        debugger
         const filter = { _id: ObjectId(userId) }
 
         return this.collection.findOneAndUpdate(filter, { $set: data })
