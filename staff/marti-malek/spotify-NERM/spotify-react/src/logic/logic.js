@@ -11,6 +11,13 @@ const logic = {
      * @param {string} token 
      */
     retrieveUser(id, token) {
+
+        if (typeof id !== 'string') throw TypeError(`${id} is not a string`)
+        if (!id.trim().length) throw Error('id is empty')
+
+        if (typeof token !== 'string') throw TypeError(`${token} is not a string`)
+        if (!token.trim().length) throw Error('token is empty')
+        
         return musicApi.retrieve(id, token)
     },
     /**

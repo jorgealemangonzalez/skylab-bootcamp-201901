@@ -195,6 +195,32 @@ const musicApi = {
         if (!trackId.trim().length) throw Error('trackId is empty')
 
         return fetch(`${this.url}/track/${trackId}/comment`)
+            .then(res => {
+                debugger
+                return res.json()
+            })
+    },
+
+    /**
+     * 
+     * Adds a comment to an artist.
+     * 
+     * @param {string} trackId 
+     */
+    deleteCommentFromTrack(commentId, userId, trackId, userToken) {
+
+        if (typeof trackId !== 'string') throw TypeError(`${trackId} is not a string`)
+
+        if (!trackId.trim().length) throw Error('trackId is empty')
+        debugger
+        return fetch(`${this.url}/track/${trackId}/comment`, {
+            method: 'DELETE',
+            headers: {
+                authorization: `Bearer ${userToken}`,
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({ userId, commentId })
+        })
             .then(res => res.json())
     }
 }

@@ -34,10 +34,11 @@ class Song extends React.Component {
     render() {
         const { props: { song: { name, id, preview_url, isFavorite }, trackComments, actualUserId }, goBack, addToFavourite, addComment, handleCommentText, deleteComment } = this
 
+        debugger
         let audio = preview_url === null ? <p className="pt-3">Whoops! There is no preview available!</p> : <audio className="m-3" src={preview_url} loop controls></audio>
 
         let heart = isFavorite ? "ml-2 fas fa-heart centerMe heart" : "ml-2 far fa-heart centerMe heart"
-
+        
         return <section className="song container-fluid">
             <h3 className="title">Song</h3>
             <button onClick={() => goBack()} className="btn-sm btn-secondary goBack" id="goBack">Go Back</button>
@@ -63,13 +64,13 @@ class Song extends React.Component {
             {/* Comments */}
             <ul className="p-0">
                 {trackComments ?
-                    trackComments.slice(0).reverse().map(({ userId, text, date, id }) => {
+                    trackComments.slice(0).reverse().map(({ user, text, date, id }) => {
                         return <li key={id} className="card col-8 p-0 mt-2 center artist__image">
                             <div className="card-header col-12 align-center d-flex flex-row-reverse align-items">
-                                {userId === actualUserId ?
-                                    <i onClick={() => deleteComment(id, this.props.song.id)} className="fas fa-times col-2 mt-1"></i>
+                                {user === actualUserId ?
+                                    <i onClick={() => deleteComment(id, this.props.song.id)} className="fas fa-times col-2 mt-1 cursor-pointer"></i>
                                     : null}
-                                <h4 className="col-8 m-0 p-0">{userId}</h4>
+                                <h4 className="col-8 m-0 p-0">{user}</h4>
                             </div>
                             <div className="card-body center song-card">
                                 <p className="card-text col-12 center align-center">{text}</p>

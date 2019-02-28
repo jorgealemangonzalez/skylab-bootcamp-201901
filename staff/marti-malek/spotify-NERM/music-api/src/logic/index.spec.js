@@ -1,52 +1,58 @@
 require('dotenv').config()
 require('isomorphic-fetch')
 
-const { MongoClient } = require('mongodb')
+// const { MongoClient } = require('mongodb')
+const mongoose = require('mongoose')
+const { User, Comment } = require('../models')
 const expect = require('expect')
 const spotifyApi = require('../spotify-api')
-const artistComments = require('../data/artist-comments')
+// const artistComments = require('../data/artist-comments')
 const logic = require('.')
 const bcrypt = require('bcrypt')
 const users = require('../data/users')
 const jwt = require('jsonwebtoken')
 
-const { env: { DB_URL, SPOTIFY_API_TOKEN, SECRET_JSON } } = process
+const { env: { DB_URL, SPOTIFY_API_TOKEN, JWT_SECRET } } = process
 
 spotifyApi.token = SPOTIFY_API_TOKEN
+logic.jwtSecret = JWT_SECRET
 
 describe('logic', () => {
-    let client
-
     before(() =>
-        MongoClient.connect(DB_URL, { useNewUrlParser: true })
-            .then(_client => {
-                client = _client
-
-                users.collection = client.db().collection('users')
-            })
+        mongoose.connect(DB_URL, { useNewUrlParser: true })
     )
 
     beforeEach(() =>
         Promise.all([
-            artistComments.removeAll(),
-            users.collection.deleteMany()
+            Comment.deleteMany(),
+            User.deleteMany()
         ])
     )
 
     describe('register user', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
-        const email = `manuelbarzi@mail.com-${Math.random()}`
+        const email = `manuelbarzi-${Math.random()}@mail.com`
         const password = '123'
         const passwordConfirm = password
 
-        it('should succeed on valid data', () =>
-            logic.registerUser(name, surname, email, password, passwordConfirm)
-                .then(id => {
-                    expect(id).toBeDefined()
-                    expect(typeof id).toBe('string')
-                })
-        )
+        it('should succeed on valid data', async () => {
+            const id = await logic.registerUser(name, surname, email, password, passwordConfirm)
+
+            expect(id).toBeDefined()
+            expect(typeof id).toBe('string')
+
+            const user = await User.findOne({ email })
+
+            expect(user.name).toBe(name)
+            expect(user.surname).toBe(surname)
+            expect(user.email).toBe(email)
+
+            const match = await bcrypt.compare(password, user.password)
+
+            expect(match).toBeTruthy()
+
+        })
 
         it('should fail on undefined name', () => {
             const name = undefined
@@ -469,26 +475,30 @@ describe('logic', () => {
         let email
         let password
 
-        beforeEach(() => {
+        beforeEach(async () => {
             password = '123'
-            email = `manuelbarzi@mail.com-${Math.random()}`
-            return users.findByEmail(email)
-            .then(user => {
-                if (user) throw Error(`user with email ${email} already exists`)
+            email = `manuelbarzi-${Math.random()}@mail.com`
+            const user = await User.findOne({ email })
 
-                return bcrypt.hash(password, 10)
-            }) 
-            .then(hash => users.add({ name, surname, email, password: hash }))
+            if (user) throw Error(`user with email ${email} already exists`)
+
+            const hash = await bcrypt.hash(password, 10)
+
+            const { id } = await User.create({ name, surname, email, password: hash })
+
+            return id
         })
 
-        it('should succeed on correct credentials', () =>
-            logic.authenticateUser(email, password)
-                .then(({ id, token }) => {
-                    expect(id).toBeDefined()
-                    expect(token).toBeDefined()
-                    expect(jwt.verify(token, SECRET_JSON)).toBeTruthy()
-                })
-        )
+        it('should succeed on correct credentials', async () => {
+            const { id, token } = await logic.authenticateUser(email, password)
+
+            expect(id).toBeDefined()
+            expect(token).toBeDefined()
+
+            const verified = await jwt.verify(token, JWT_SECRET)
+
+            expect(verified).toBeTruthy()
+        })
         it('should fail on empty email', function () {
             email = ''
 
@@ -598,31 +608,35 @@ describe('logic', () => {
         let password
         let _id, _token
 
-        beforeEach(() => {
-            email = `manuelbarzi@mail.com-${Math.random()}`
+        beforeEach(async () => {
             password = '123'
-            return users.add({ name, surname, email, password })
-                .then(() => users.findByEmail(email))
-                .then((user) => {
-                    _id = user.id.toString()
-                    _token = jwt.sign({
-                        data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
-                })
-                .catch((err) => {
-                    if (err) throw err
-                })
+            email = `manuelbarzi-${Math.random()}@mail.com`
+
+            const hash = await bcrypt.hash(password, 10)
+
+            await User.create({ name, surname, email, password: hash })
+
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} does not exist`)
+
+            _id = user.id
+
+            _token = await jwt.sign({
+                data: _id
+            }, JWT_SECRET, { expiresIn: '48h' })
         })
 
-        it('should succeed on correct credentials', () =>
-            logic.retrieveUser(_id, _token)
-                .then(user => {
-                    expect(user.id).toEqual(_id)
-                    expect(user.name).toBe(name)
-                    expect(user.surname).toBe(surname)
-                    expect(user.email).toBe(email)
-                })
-        )
+        it('should succeed on correct credentials', async () => {
+            const user = await logic.retrieveUser(_id, _token)
+
+            expect(user.id).toEqual(_id)
+            expect(user.name).toBe(name)
+            expect(user.surname).toBe(surname)
+            expect(user.email).toBe(email)
+
+            expect(user.save).toBeUndefined()
+        })
         it('should fail on empty _id', function () {
             _id = ''
 
@@ -734,32 +748,39 @@ describe('logic', () => {
         let _id, _token
         let data
 
-        beforeEach(() => {
+        beforeEach(async () => {
             data = { name: 'Manuel2' }
-            email = `manuelbarzi@mail.com-${Math.random()}`
             password = '123'
-            return users.add({ name, surname, email, password })
-                .then(() => users.findByEmail(email))
-                .then((user) => {
-                    _id = user.id.toString()
-                    _token = jwt.sign({
-                        data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
-                })
-                .catch((err) => {
-                    if (err) throw err
-                })
+            email = `manuelbarzi-${Math.random()}@mail.com`
+
+            const hash = await bcrypt.hash(password, 10)
+
+            await User.create({ name, surname, email, password: hash })
+
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} does not exist`)
+
+            _id = user.id
+
+            _token = await jwt.sign({
+                data: _id
+            }, JWT_SECRET, { expiresIn: '48h' })
         })
 
-        it('should succeed on correct credentials', () => {
-            return logic.updateUser(_id, _token, data)
-                .then(() => users.findByUserId(_id))
-                .then(user => {
-                    expect(user.id).toEqual(_id)
-                    expect(user.name).toBe(data.name)
-                    expect(user.surname).toBe(surname)
-                    expect(user.email).toBe(email)
-                })
+        it('should succeed on correct credentials', async () => {
+            await logic.updateUser(_id, _token, data)
+
+            const user = await User.findById(_id).select('-__v -password').lean()
+            user.id = user._id.toString()
+            delete user._id
+
+            expect(user.id).toEqual(_id)
+            expect(user.name).toBe(data.name)
+            expect(user.surname).toBe(surname)
+            expect(user.email).toBe(email)
+
+            expect(user.save).toBeUndefined()
         })
         it('should fail on empty _id', function () {
             _id = ''
@@ -915,28 +936,28 @@ describe('logic', () => {
         let password
         let _id, _token
 
-        beforeEach(() => {
-            email = `manuelbarzi@mail.com-${Math.random()}`
+        beforeEach(async () => {
             password = '123'
-            return users.add({ name, surname, email, password })
-                .then(() => users.findByEmail(email))
-                .then((user) => {
-                    _id = user.id.toString()
-                    _token = jwt.sign({
-                        data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
-                })
-                .catch((err) => {
-                    if (err) throw err
-                })
+            email = `manuelbarzi-${Math.random()}@mail.com`
+
+            const hash = await bcrypt.hash(password, 10)
+
+            await User.create({ name, surname, email, password: hash })
+
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} does not exist`)
+
+            _id = user.id
+
+            _token = await jwt.sign({
+                data: _id
+            }, JWT_SECRET, { expiresIn: '48h' })
         })
 
         it('should succeed on correct credentials', () => {
             return logic.removeUser(_id, _token)
-                .then(res => {
-                    expect(res.deletedCount).toBe(1)
-                })
-                .then(() => users.findByUserId(_id))
+                .then(() => User.findById(_id))
                 .then(user => {
                     expect(user).toBeNull()
                 })
@@ -1109,49 +1130,43 @@ describe('logic', () => {
         })
     })
 
-    describe('retrieve artist', () => {
+    false && describe('retrieve artist', () => {
 
-        
-        const comment = {
-            artistId : '6tbjWDEIzxoDsBA1FuhfPW',
-            text: 'Such a cool song',
-            date: new Date
-        }
         const name = 'Manuel'
         const surname = 'Barzi'
         let email
         let password
+        let _id, _token
 
-        beforeEach(() => {
-            email = `manuelbarzi@mail.com-${Math.random()}`
+        beforeEach(async () => {
+            data = { name: 'Manuel2' }
             password = '123'
-            return users.add({ name, surname, email, password })
-                .then(() => users.findByEmail(email))
-                .then(user => {
-                    comment.userId = user.id.toString()
-                    _id = user.id.toString()
-                    _token = jwt.sign({
-                        data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
-                })
-                .catch((err) => {
-                    if (err) throw err
-                })
-                .then(() => {
-                    artistComments.add(comment)
-                })
+            email = `manuelbarzi-${Math.random()}@mail.com`
+
+            const hash = await bcrypt.hash(password, 10)
+
+            await User.create({ name, surname, email, password: hash })
+
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} does not exist`)
+
+            _id = user.id
+
+            _token = await jwt.sign({
+                data: _id
+            }, JWT_SECRET, { expiresIn: '48h' })
         })
 
         it('should succeed on matching artistId', () => {
             const artistId = '6tbjWDEIzxoDsBA1FuhfPW'
 
             return logic.retrieveArtist(artistId)
-                .then(({id, name, comments}) => {
+                .then((res) => {
                     debugger
                     expect(id).toBe(artistId)
                     expect(name).toBe('Madonna')
                     expect(comments).toBeDefined()
-                    expect(comments[0].text).toEqual(comment.text)
                 })
         })
 
@@ -1207,32 +1222,36 @@ describe('logic', () => {
         })
     })
 
-    describe('toggle favorite artist', () => {
+    false && describe('toggle favorite artist', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
         let email
-        const password = '123'
+        let password
         const artistId = '6tbjWDEIzxoDsBA1FuhfPW' // madonna
         let _id, _token
 
-        beforeEach(() => {
-            email = `manuelbarzi@mail.com-${Math.random()}`
-            return users.add({ name, surname, email, password })
-                .then(() => users.findByEmail(email))
-                .then((user) => {
-                    _id = user.id.toString()
-                    _token = jwt.sign({
-                        data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
-                })
-                .catch((err) => {
-                    if (err) throw err
-                })
+        beforeEach(async () => {
+            password = '123'
+            email = `manuelbarzi-${Math.random()}@mail.com`
+
+            const hash = await bcrypt.hash(password, 10)
+
+            await User.create({ name, surname, email, password: hash })
+
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} does not exist`)
+
+            _id = user.id
+
+            _token = await jwt.sign({
+                data: _id
+            }, JWT_SECRET, { expiresIn: '48h' })
         })
 
         it('should succeed on correct data', () =>
             logic.toggleFavoriteArtist(_id, _token, artistId)
-                .then(() => users.findByUserId(_id))
+                .then(() => User.findById(_id))
                 .then(user => {
                     expect(user.id).toEqual(_id)
                     expect(user.name).toBe(name)
@@ -1245,7 +1264,7 @@ describe('logic', () => {
 
                     return logic.toggleFavoriteArtist(_id, _token, artistId)
                 })
-                .then(() => users.findByUserId(_id))
+                .then(() => User.findById(_id))
                 .then(user => {
                     expect(user.id).toEqual(_id)
                     expect(user.name).toBe(name)
@@ -1408,30 +1427,33 @@ describe('logic', () => {
         })
     })
 
-    describe('add comment to artist', () => {
+    false && describe('add comment to artist', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
-        const email = `manuelbarzi@mail.com-${Math.random()}`
-        const password = '123'
+        let email
+        let password
         const artistId = '6tbjWDEIzxoDsBA1FuhfPW' // madonna
         const comment = `comment ${Math.random()}`
         let _id, _token
 
-        beforeEach(() => {
-            return users.add({ name, surname, email, password })
-                .then(() => users.findByEmail(email))
-                .then((user) => {
-                    _id = user.id.toString()
-                    _token = jwt.sign({
-                        data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
-                })
-                .catch((err) => {
-                    if (err) throw err
-                })
+        beforeEach(async () => {
+            password = '123'
+            email = `manuelbarzi-${Math.random()}@mail.com`
+
+            const hash = await bcrypt.hash(password, 10)
+
+            await User.create({ name, surname, email, password: hash })
+
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} does not exist`)
+
+            _id = user.id
+
+            _token = await jwt.sign({
+                data: _id
+            }, JWT_SECRET, { expiresIn: '48h' })
         })
-
-
 
         it('should succeed on correct data', () =>
             logic.addCommentToArtist(_id, _token, artistId, comment)
@@ -1449,7 +1471,7 @@ describe('logic', () => {
         )
     })
 
-    describe('list comments from artist', () => {
+    false && describe('list comments from artist', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
         const email = `manuelbarzi@mail.com-${Math.random()}`
@@ -1469,7 +1491,7 @@ describe('logic', () => {
                     _id = user.id.toString()
                     _token = jwt.sign({
                         data: _id
-                    }, SECRET_JSON, { expiresIn: '48h' })
+                    }, JWT_SECRET, { expiresIn: '48h' })
                 })
                 .catch((err) => {
                     if (err) throw err
@@ -1500,7 +1522,7 @@ describe('logic', () => {
         )
     })
 
-    describe('retrieve albums', () => {
+    false && describe('retrieve albums', () => {
         it('should succeed on matching query', () => {
             const artistId = '6tbjWDEIzxoDsBA1FuhfPW' // madonna
 
@@ -1564,7 +1586,7 @@ describe('logic', () => {
         })
     })
 
-    describe('retrieve album', () => {
+    false && describe('retrieve album', () => {
         it('should succeed on matching query', () => {
             const albumId = '4hBA7VgOSxsWOf2N9dJv2X' // Rebel Heart Tour (Live)
 
@@ -1627,7 +1649,7 @@ describe('logic', () => {
         })
     })
 
-    describe('toggle favorite album', () => {
+    false && describe('toggle favorite album', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
         let email
@@ -1674,7 +1696,7 @@ describe('logic', () => {
         )
     })
 
-    describe('retrieve tracks', () => {
+    false && describe('retrieve tracks', () => {
         it('should succeed on mathing query', () => {
             const albumId = '4hBA7VgOSxsWOf2N9dJv2X' // Rebel Heart Tour (Live)
 
@@ -1693,7 +1715,7 @@ describe('logic', () => {
         })
     })
 
-    describe('retrieve track', () => {
+    false && describe('retrieve track', () => {
         it('should succeed on mathing query', () => {
             const trackId = '5U1tMecqLfOkPDIUK9SVKa' // Rebel Heart Tour Intro - Live
             const trackName = 'Rebel Heart Tour Intro - Live'
@@ -1716,7 +1738,7 @@ describe('logic', () => {
         })
     })
 
-    describe('toggle favorite track', () => {
+    false && describe('toggle favorite track', () => {
         const name = 'Manuel'
         const surname = 'Barzi'
         const email = `manuelbarzi@mail.com-${Math.random()}`
@@ -1764,9 +1786,9 @@ describe('logic', () => {
 
     after(() =>
         Promise.all([
-            artistComments.removeAll(),
-            users.collection.deleteMany()
-                .then(() => client.close())
+            Comment.deleteMany(),
+            User.deleteMany()
         ])
+            .then(() => mongoose.disconnect())
     )
 })

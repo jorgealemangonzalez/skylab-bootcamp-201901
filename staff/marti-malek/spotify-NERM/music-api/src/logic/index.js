@@ -3,8 +3,7 @@
 require('dotenv').config()
 
 const spotifyApi = require('../spotify-api')
-const users = require('../data/users')
-const trackComments = require('../data/track-comments')
+const { User, Comment } = require('../models')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
@@ -48,13 +47,25 @@ const logic = {
 
         if (password !== passwordConfirmation) throw Error('passwords do not match')
 
-        return users.findByEmail(email)
-            .then(user => {
-                if (user) throw Error(`user with email ${email} already exists`)
+        //     return users.findByEmail(email)
+        //         .then(user => {
+        //             if (user) throw Error(`user with email ${email} already exists`)
 
-                return bcrypt.hash(password, 10)
-            })
-            .then(hash => users.add({ name, surname, email, password: hash }))
+        //             return bcrypt.hash(password, 10)
+        //         })
+        //         .then(hash => users.add({ name, surname, email, password: hash }))
+
+        return (async () => {
+            const user = await User.findOne({ email })
+
+            if (user) throw Error(`user with email ${email} already exists`)
+
+            const hash = await bcrypt.hash(password, 10)
+
+            const { id } = await User.create({ name, surname, email, password: hash })
+
+            return id
+        })()
     },
 
     /**
@@ -74,23 +85,25 @@ const logic = {
         if (typeof password !== 'string') throw TypeError(password + ' is not a string')
 
         if (!password.trim().length) throw Error('password cannot be empty')
-        
-        return users.findByEmail(email)
-            .then(user => {
-                if (!user) throw Error(`user with email ${email} not found`)
-                return bcrypt.compare(password, user.password)
-                    .then(match => {
-                        if (!match) throw Error('Error in credentials')
-                        // if (user.password !== password) throw Error('wrong credentials')
-                        const userId = user.id
-                        const secret = this.jwtSecret
 
-                        const token = jwt.sign({
-                            data: userId
-                        }, secret, { expiresIn: '48h' })
-                        return { id: userId, token }
-                    })
-            })
+        return (async () => {
+            const user = await User.findOne({ email })
+
+            if (!user) throw Error(`user with email ${email} not found`)
+
+            const match = await bcrypt.compare(password, user.password)
+
+            if (!match) throw Error('Error in credentials')
+
+            const userId = user.id
+            const secret = this.jwtSecret
+
+            const token = await jwt.sign({
+                data: userId
+            }, secret, { expiresIn: '48h' })
+
+            return { id: userId, token }
+        })()
     },
     /**
      * 
@@ -103,7 +116,6 @@ const logic = {
      * @throws {TypeError} - On incorrect data type
      */
     retrieveUser(userId, token) {
-
         if (typeof userId !== 'string') throw TypeError(userId + ' is not a string')
 
         if (!userId.trim().length) throw Error('userId cannot be empty')
@@ -113,17 +125,12 @@ const logic = {
         if (!token.trim().length) throw Error('token cannot be empty')
 
         if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
-
-        return users.findByUserId(userId)
-            .then(({ id, name, surname, email, favoriteArtists = [], favoriteAlbums = [], favoriteTracks = [] }) => ({
-                id: id.toString(),
-                name,
-                surname,
-                email,
-                favoriteArtists,
-                favoriteAlbums,
-                favoriteTracks
-            }))
+        return (async () => {
+            const user = await User.findById(userId).select('-__v -password').lean()
+            user.id = user._id.toString()
+            delete user._id
+            return user
+        })()
     },
     /**
      * 
@@ -152,8 +159,7 @@ const logic = {
 
         if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
 
-        return users.update(userId, data)
-
+        return User.findByIdAndUpdate(userId, data).select('-__v -password').lean()
     },
     /**
      * 
@@ -177,7 +183,8 @@ const logic = {
 
         if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
 
-        return users.remove(userId)
+        return User.findByIdAndDelete(userId)
+            .then(() => { })
     },
 
 
@@ -213,7 +220,7 @@ const logic = {
 
         return spotifyApi.retrieveArtist(artistId)
             .then(artist => {
-                return trackComments.find({ artistId: artist.id })
+                return Comment.find({ artistId: artist.id })
                     .then(comments => {
                         artist.comments = comments
                         return artist
@@ -245,7 +252,7 @@ const logic = {
 
         if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
 
-        return users.findByUserId(userId)
+        return User.findById(userId)
             .then(user => {
                 const { favoriteArtists = [] } = user
 
@@ -280,7 +287,7 @@ const logic = {
             date: new Date
         }
 
-        return users.findByUserId(userId)
+        return User.findById(userId)
             .then(() => artistComments.add(comment))
             .then(() => comment.id)
     },
@@ -301,18 +308,20 @@ const logic = {
         if (typeof text !== 'string') throw TypeError(`${text} is not a string`)
 
         const comment = {
-            userId,
-            trackId,
+            user: userId,
+            targetId: trackId,
             text,
-            date: new Date
+            target: 'track'
         }
 
-        return users.findByUserId(userId)
+        return User.findById(userId)
             .then(() => {
-                debugger
-                return trackComments.add(comment)
+                return Comment.create(comment)
             })
-            .then(() => comment.id)
+            .then(res => {
+                debugger
+                return res._id
+            })
     },
 
     listCommentsFromArtist(artistId) {
@@ -324,7 +333,15 @@ const logic = {
     listCommentsFromTrack(trackId) {
         // TODO trackId
 
-        return trackComments.find({ trackId })
+        return (async () => {
+            const comments = await Comment.find({targetId: trackId}).select('-__v').lean()
+            comments.forEach(comment => {
+                comment.user = comment.user.toString()
+                comment.id = comment._id.toString()
+                delete comment._id
+            })
+            return comments
+        })()
     },
 
     deleteCommentFromTrack(userId, commentId, token) {
@@ -332,7 +349,7 @@ const logic = {
 
         if (jwt.verify(token, this.jwtSecret).data !== userId) throw Error('Incorrect token')
 
-        return trackComments.remove(commentId)
+        return Comment.findByIdAndRemove(commentId)
     },
 
     /**
@@ -424,9 +441,9 @@ const logic = {
         return users.findByUserId(userId)
             .then(user => {
                 const { favoriteTracks } = user
-                
+
                 const index = favoriteTracks.findIndex(_trackId => _trackId === trackId)
-                
+
                 if (index < 0) favoriteTracks.push(trackId)
                 else favoriteTracks.splice(index, 1)
 

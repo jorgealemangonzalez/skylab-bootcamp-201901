@@ -81,9 +81,7 @@ class App extends Component {
     handleAlbum = (artistId) => {
         try {
             logic.retrieveAlbums(artistId)
-                .then(albums => {
-                    this.setState({ albumsVisible: true, artistsVisible: false, albums })
-                })
+                .then(albums => this.setState({ albumsVisible: true, artistsVisible: false, albums }))
         } catch (error) {
             console.error(error)
         }
@@ -112,7 +110,6 @@ class App extends Component {
                 logic.listCommentsFromTrack(trackId)
             ])
                 .then(([song, { favoriteTracks }, trackComments]) => {
-
                     song.isFavorite = favoriteTracks.includes(trackId)
                     this.setState({ tracksVisible: false, songVisible: true, song, trackComments })
                 })
@@ -124,11 +121,12 @@ class App extends Component {
 
     handleRegister = (name, surname, email, password, passwordConfirm) => {
         try {
-            logic.register(name, surname, email, password, passwordConfirm, () => {
-                console.log('You have been successfully registered')
-
-                this.setState({ registerFeedback: '' })
-            })
+            logic.register(name, surname, email, password, passwordConfirm)
+                .then(() => {
+                    console.log('You have been successfully registered')
+                    this.setState({ registerFeedback: '', loginVisible: true, registerVisible: false })
+                })
+                .catch(error => this.setState({ registerFeedback: error.message }))
         } catch ({ message }) {
             this.setState({ registerFeedback: message })
         }
@@ -147,13 +145,14 @@ class App extends Component {
                 })
                 .then(user => {
                     this.setState({ loginFeedback: '', user: user })
+                    this.setState({
+                        loginVisible: false,
+                        searchVisible: true
+                    })
                 })
+                .catch(error => this.setState({loginFeedback: error.message}))
             /* this.setState({user: user, userEmail: user.email}) */
 
-            this.setState({
-                loginVisible: false,
-                searchVisible: true
-            })
         } catch ({ message }) {
             this.setState({ loginFeedback: message })
         }
@@ -188,6 +187,7 @@ class App extends Component {
         const { state: { user, userToken } } = this
 
         return logic.deleteCommentFromTrack(commentId, user.id, trackId, userToken)
+            .then(() => this.handleSong(trackId))
     }
 
     render() {

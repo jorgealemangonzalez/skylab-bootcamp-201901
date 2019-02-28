@@ -8,7 +8,7 @@ const trackComment = {
     __load__(file) {
         return fsp.readFile(file)
             .then(content => {
-                debugger
+
                 return JSON.parse(content)
             })
     },
@@ -23,10 +23,10 @@ const trackComment = {
         if (comment.constructor !== Object) throw TypeError(`${comment} should be an object`)
 
         const file = path.join(__dirname, this.file)
-        debugger
+        
         return this.__load__(file)
             .then(comments => {
-                debugger
+                
                 comment.id = uuid()
 
                 comments.push(comment)

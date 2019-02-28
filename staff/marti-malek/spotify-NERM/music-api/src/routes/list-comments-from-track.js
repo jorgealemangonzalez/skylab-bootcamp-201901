@@ -2,7 +2,6 @@ const logic = require('../logic')
 
 module.exports = (req, res) => {
     const { params: { trackId } } = req
-    debugger
 
     try {
         logic.listCommentsFromTrack(trackId)
