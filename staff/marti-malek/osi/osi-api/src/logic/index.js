@@ -724,7 +724,6 @@ const logic = {
 
             /* Recursively deletes the deired folder by it's path */
             const deleteFolder = myPath => {
-                debugger
                 let content = fs.readdirSync(myPath)
 
                 let files = content.map(child => path.join(myPath, child)).filter(child => fs.lstatSync(child).isFile())

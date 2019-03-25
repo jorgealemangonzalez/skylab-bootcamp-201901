@@ -7,18 +7,20 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.5",
-    "lint": "npx lint src"
+    "react-scripts": "2.1.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "test-debug": "react-scripts --inspect-brk test --runInBand"
+    "test-debug": "react-scripts --inspect-brk test --runInBand",
+    "lint": "sui-lint js"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": [
+      "./node_modules/@s-ui/lint/eslintrc.js"
+    ]
   },
   "browserslist": [
     ">0.2%",
@@ -27,6 +29,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@s-ui/lint": "^2.22.0",
     "chai": "^4.2.0",
     "mocha": "^6.0.2"
   }
